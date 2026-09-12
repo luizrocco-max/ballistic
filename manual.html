@@ -43,7 +43,7 @@ a{color:var(--deep)}
 <div class="wrap">
 <header>
   <h1>Manual do painel balístico<br>CBC Competition 12/70</h1>
-  <p>Metodologia de cálculo, dados, modalidades, limitações e fontes. Versão 1.0, setembro de 2026. Painel: <a href="./">luizrocco-max.github.io/ballistic</a> · <a href="manual.pdf">versão em PDF</a></p>
+  <p>Metodologia de cálculo, dados, modalidades, limitações e fontes. Versão 1.1, setembro de 2026. Painel: <a href="./">luizrocco-max.github.io/ballistic</a> · <a href="manual.pdf">versão em PDF</a></p>
 </header>
 
 <nav class="toc"><b>Sumário</b>
@@ -61,6 +61,7 @@ a{color:var(--deep)}
 <li><a href="#s11">Uso: instalação, link, resumo</a></li>
 <li><a href="#s12">Fontes</a></li>
 <li><a href="#s13">Glossário</a></li>
+<li><a href="#s14">Histórico de versões</a></li>
 </ol></nav>
 
 <h2 id="s1">1. Finalidade e aviso</h2>
@@ -81,7 +82,8 @@ a{color:var(--deep)}
 <tr><td>Modelo de arrasto</td><td>Curva de Loth (referência) ou Cd constante 0,47 (comparação), com a diferença de alcance.</td></tr>
 <tr><td>Comparativo</td><td>Os sete cartuchos nas condições atuais, cada um no seu ângulo ótimo.</td></tr>
 <tr><td>Tabela a cada 25 m</td><td>Tempo, altura, velocidade, energia e Mach ao longo do voo; tocar numa linha move o ponto de leitura.</td></tr>
-<tr><td>Seção da modalidade</td><td>Regras e medidas, cartucho e choke por tiro, pontos de quebra, apresentação do prato, erro de centragem, critério de impactos, vista de cima em escala, tabela por tiro e probabilidade combinada.</td></tr>
+<tr><td>Seção da modalidade</td><td>Regras e medidas; cartucho do 1º e do 2º tiro (qualquer dos sete ou o principal); choke do 1º e do 2º cano (nove constrições); pontos de quebra por tiro; posto de skeet; apresentação do prato; erro de centragem; critério de impactos; velocidade estimada do alvo; vista de cima em escala; tabela por tiro; probabilidade combinada.</td></tr>
+<tr><td>Rosada no alvo, em escala</td><td>Para cada tiro, quadro de 1,2 × 1,2 m com todos os bagos do cartucho, o círculo de 76 cm, o círculo de 70% e o alvo com o erro de centragem, com a contagem em cada área (item 8.6).</td></tr>
 <tr><td>Entenda o modelo</td><td>Explicações, observações e limitações, instalação e parâmetros do link.</td></tr>
 <tr><td>Copiar resumo / Compartilhar</td><td>Texto pronto para WhatsApp com cartucho, condições, resultados e link; compartilhamento nativo do aparelho.</td></tr>
 <tr><td>Botões "?"</td><td>Cada item tem uma explicação com os números da configuração atual e links "Veja também".</td></tr>
@@ -248,6 +250,25 @@ a{color:var(--deep)}
 
 <h3>8.6 Desenho da rosada em escala</h3>
 <p>Para cada tiro, o painel desenha um quadro de 1,2 × 1,2 m no plano do alvo com todos os bagos do cartucho, sorteados da distribuição normal do item 8.2 com sementes fixas; entre doze sorteios é exibido o de contagem no alvo mais próxima da média calculada. O quadro mostra o círculo de 76 cm, o círculo que contém 70% dos bagos e o alvo com o erro de centragem, e informa quantos bagos caem em cada área. O gráfico de trajetória mostra um único bago porque, no modelo, todos voam igual: a posição na rosada é a única diferença entre eles.</p>
+<h3>8.7 Tabelas comparativas: choke, distância e cartucho</h3>
+<p>Valores do modelo a 650 m e 20 °C, com erro de centragem de 5 cm. "Rosada" é o diâmetro que contém 70% dos bagos; "hélice" é a média de bagos na zona central de 15 cm, com a probabilidade de 4 ou mais; "prato" é a média num prato em apresentação intermediária (48 cm²), com a probabilidade de 3 ou mais. Todos os bagos chegam a qualquer dessas distâncias; o que cai com a distância é a fração deles dentro do alvo.</p>
+<p><b>Voo Hélice 7½, 32 g, 414 bagos</b></p>
+<div class="tw"><table>
+<tr><th>Distância</th><th>Bago</th><th>Improved Cylinder (¼)</th><th>Modified (½)</th><th>Improved Modified (¾)</th><th>Full</th></tr>
+<tr><td>25 m</td><td>221 m/s · 1,88 J</td><td>69 cm · hélice 23 (100%) · prato 6,2 (95%)</td><td>60 cm · 29 (100%) · 8,1 (99%)</td><td>56 cm · 33 (100%) · 9,2 (99%)</td><td>52 cm · 38 (100%) · 10,5 (100%)</td></tr>
+<tr><td>30 m</td><td>204 m/s · 1,61 J</td><td>82 cm · 16 (100%) · 4,3 (81%)</td><td>72 cm · 21 (100%) · 5,7 (92%)</td><td>67 cm · 24 (100%) · 6,5 (96%)</td><td>62 cm · 27 (100%) · 7,4 (98%)</td></tr>
+<tr><td>35 m</td><td>189 m/s · 1,38 J</td><td>96 cm · 12 (100%) · 3,2 (62%)</td><td>84 cm · 16 (100%) · 4,2 (79%)</td><td>78 cm · 18 (100%) · 4,8 (86%)</td><td>73 cm · 20 (100%) · 5,5 (91%)</td></tr>
+<tr><td>40 m</td><td>175 m/s · 1,19 J</td><td>110 cm · 9 (98%) · 2,5 (45%)</td><td>95 cm · 12 (100%) · 3,3 (63%)</td><td>89 cm · 14 (100%) · 3,7 (72%)</td><td>83 cm · 16 (100%) · 4,2 (80%)</td></tr>
+<tr><td>45 m</td><td>163 m/s · 1,02 J</td><td>123 cm · 7 (93%) · 2,0 (31%)</td><td>107 cm · 10 (99%) · 2,6 (48%)</td><td>100 cm · 11 (99%) · 2,9 (57%)</td><td>94 cm · 12 (100%) · 3,4 (66%)</td></tr>
+</table></div>
+<p><b>Outros cartuchos, choke Modified (½)</b></p>
+<div class="tw"><table>
+<tr><th>Cartucho</th><th class="n">Bagos</th><th>30 m</th><th>35 m</th><th>40 m</th><th>45 m</th></tr>
+<tr><td>Voo Hélice 8</td><td class="n">464</td><td>hélice 23 · prato 6,4 (95%) · 1,38 J</td><td>17 · 4,7 (85%) · 1,18 J</td><td>13 · 3,6 (71%) · 1,01 J</td><td>11 · 2,9 (55%) · 0,86 J</td></tr>
+<tr><td>C25 7½</td><td class="n">362</td><td>18 · 5,0 (87%) · 1,57 J</td><td>14 · 3,7 (71%) · 1,35 J</td><td>10 · 2,8 (54%) · 1,16 J</td><td>8 · 2,3 (39%) · 1,00 J</td></tr>
+<tr><td>T200 Light 8</td><td class="n">464</td><td>23 · 6,4 (95%) · 1,24 J</td><td>17 · 4,7 (85%) · 1,06 J</td><td>13 · 3,6 (71%) · 0,91 J</td><td>11 · 2,9 (55%) · 0,77 J</td></tr>
+</table></div>
+<p>Leituras: o número de bagos no alvo cai com o quadrado do diâmetro da rosada; na hélice, entre 30 e 40 m, sobram 12 a 27 bagos na zona central com qualquer choke, e a quebra fica limitada pela pontaria; no prato a 40 m o choke decide (45% com ¼ contra 80% com Full); o chumbo 8 coloca mais bagos no alvo com menos energia cada, ainda acima de 1 J até 40 m; a carga de 28 g tem 12% menos bagos que a de 32 g, e é isso, não a velocidade, que reduz a probabilidade.</p>
 <h2 id="s9">9. Energia necessária para quebrar o alvo</h2>
 <p><b>Hélice.</b> Não há valor publicado. Os regulamentos fixam o material (pás de poliestireno "muito friável ao impacto", testigo de polietileno com ao menos 50% do material, não quebrável, encaixe por pressão com folga para o testigo girar livre no plano horizontal) e um teste de fragilidade das pás com durômetro Shore, com deformação máxima de 0,5 mm antes da ruptura, medida no centro do colar. Romper parede fina de poliestireno frágil consome da ordem de centésimos a décimos de joule por impacto, muito abaixo do 1 J que cada bago ainda carrega entre 30 e 45 m. O testigo solta quando o colar se despedaça ou quando é arrancado por impacto direto; um impacto isolado fora do centro apenas fura a pá. O gargalo é, portanto, o número de bagos na zona central, e não a energia de cada um. Praticantes relatam que a hélice exige mais impactos que o prato e recomendam chokes ½ e ¾ com chumbo 7 a 8.</p>
 <p><b>Prato.</b> A experiência de campo e as tabelas de fabricantes falam em bagos com 0,5 a 1 ft·lb (0,7 a 1,4 J) e 3 a 6 impactos para quebra confiável do prato de 108 a 110 mm; de borda, ele é menor e mais resistente. Daí o critério do painel: k = 3 e ≥ 0,7 J por bago.</p>
@@ -367,7 +388,14 @@ a{color:var(--deep)}
 <tr><td>Ápice</td><td>Altura máxima da trajetória.</td></tr>
 <tr><td>Poisson</td><td>Distribuição de probabilidade do número de eventos independentes com média conhecida.</td></tr>
 </table></div>
-<p class="small">Manual do painel balístico CBC Competition 12/70, versão 1.0. Estimativa de engenharia; não substitui normas de segurança nem o teste da arma no papel.</p>
+<h2 id="s14">14. Histórico de versões</h2>
+<table>
+<tr><th>Versão</th><th>Conteúdo</th></tr>
+<tr><td>Painel</td><td>Dashboard do bago isolado (T200, T200 Light); altura de disparo, desnível, modelos de arrasto, resumo, compartilhamento, PWA; ajuda "?" em todos os itens; condições do local (Open-Meteo); cartuchos C25 e Voo Hélice; modalidades com medidas oficiais (hélice FAN 32 e ZZ, fossa olímpica, fossa universal, trap americano, skeet, percurso de caça, Compak, 5-Stand); cartucho e choke por tiro; rosada em escala por tiro.</td></tr>
+<tr><td>Manual 1.0</td><td>Primeira edição: metodologia, dados, validação, modalidades, rosada, limitações, uso e fontes.</td></tr>
+<tr><td>Manual 1.1</td><td>Cartucho por tiro e desenho da rosada na visão geral; item 8.6 (desenho da rosada) e 8.7 (tabelas comparativas de choke, distância e cartucho); histórico de versões.</td></tr>
+</table>
+<p class="small">Manual do painel balístico CBC Competition 12/70, versão 1.1. Estimativa de engenharia; não substitui normas de segurança nem o teste da arma no papel.</p>
 </div>
 </body>
 </html>
