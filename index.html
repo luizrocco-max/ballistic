@@ -217,6 +217,11 @@ details.acc .body p{margin:0 0 8px}
     <div class="chartwrap"><svg class="chart" id="tfield" viewBox="0 0 700 330" aria-label="Vista de cima do campo" style="cursor:default"></svg><button type="button" class="q" data-help="tfield" aria-label="Como ler a vista de cima">?</button></div>
   </div>
   <div class="tw"><table id="ttbl"><thead><tr><th></th><th>1º tiro<button type="button" class="q" data-help="hhit" aria-label="Sobre os resultados por tiro">?</button></th><th>2º tiro<button type="button" class="q" data-help="hhit" aria-label="Sobre os resultados por tiro">?</button></th></tr></thead><tbody></tbody></table></div>
+  <div class="sec" style="font-size:17px;margin-top:14px">Rosada no alvo, em escala<button type="button" class="q" data-help="rosada" aria-label="Sobre o desenho da rosada">?</button></div>
+  <div class="grid2">
+    <div class="ctl"><div class="hint" style="display:block;margin-bottom:6px"><span id="pat1t"></span></div><svg class="chart" id="pat1" viewBox="0 0 300 300" style="margin:0;cursor:default" aria-label="Rosada do 1º tiro"></svg><div class="hint" style="display:block"><span id="pat1v"></span></div></div>
+    <div class="ctl"><div class="hint" style="display:block;margin-bottom:6px"><span id="pat2t"></span></div><svg class="chart" id="pat2" viewBox="0 0 300 300" style="margin:0;cursor:default" aria-label="Rosada do 2º tiro"></svg><div class="hint" style="display:block"><span id="pat2v"></span></div></div>
+  </div>
   <div class="ctl" style="margin-top:12px"><div class="hint" style="display:block"><span id="tnote"></span></div></div>
   </div>
   <div class="sec">Entenda o modelo<button type="button" class="q" data-help="metodo" aria-label="Resumo do método">?</button></div>
@@ -532,7 +537,28 @@ function renderTarget(load,c){
  if(m.kind==="helice"){rows.push(row("Bagos no testigo (10,4 cm)",x=>fmt(x.hT,1)),row("Bagos na zona central (15 cm)",x=>fmt(x.h,1)),row("Bagos na hélice inteira",x=>fmt(x.hH,0)))}else rows.push(row(`Bagos no prato (${fmt(CLAY_A*pres,0)} cm²)`,x=>fmt(x.h,1)));
  rows.push(row("Energia somada no alvo",x=>fmt(x.h*x.p.e,1)+" J"),row(`Probabilidade de ${kmin}+ impactos`,x=>fmt(100*x.prob,x.prob>0.99?1:0)+" %"),row("Adiantamento (estimativa)",x=>fmt(x.lead,1)+" m"));
  $("ttbl").querySelector("tbody").innerHTML=rows.join("");
+ drawPattern("pat1",s1,"1º tiro");drawPattern("pat2",s2,two?"2º tiro":"2º tiro (treino)");
  $("tnote").innerHTML=`Rosada modelada como distribuição normal bidimensional calibrada pelo percentual do choke (valores típicos; cada arma padroniza diferente). ${m.kind==="helice"?"Hélice tomada como disco de 28 cm com 45% de área ocupada pelas pás; zona central = testigo + colar.":"Prato de 110 mm; a área efetiva depende da apresentação escolhida; impacto só conta com energia ≥ 0,7 J por bago (≈ 0,5 ft·lb)."} Probabilidade por Poisson; com dois tiros, o segundo é tomado como independente e só decisivo se o primeiro falhar. ${two?"":"Nesta modalidade a regra prevê um tiro por alvo; o segundo aparece só para treino."} ${over||overd?"<b>Atenção:</b> há cartucho fora do limite desta modalidade. ":""}Estimativa didática.`;
+}
+// amostra determinística da rosada (gaussiana 2D) para o desenho em escala
+function mulberry(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function drawPattern(id,sh,title){
+ const W=300,sc=W/1.2,cx=W/2,cy=W/2,e=S.herr/100,rT=tg.rT;
+ // amostra representativa: entre 12 sementes fixas, a que dá contagem no alvo mais próxima da média calculada
+ const sample=seed=>{const rnd=mulberry(seed),pts=[];let inT=0,in76=0;for(let i=0;i<sh.n;i++){const u1=Math.max(rnd(),1e-12),u2=rnd(),r=Math.sqrt(-2*Math.log(u1))*sh.sig,x=r*Math.cos(2*Math.PI*u2),y=r*Math.sin(2*Math.PI*u2);const hit=Math.hypot(x-e,y)<=rT;if(hit)inT++;if(Math.hypot(x,y)<=0.381)in76++;pts.push([x,y,hit])}return{pts,inT,in76}};
+ let best=null;for(let k=0;k<12;k++){const sm=sample(1000*k+(id==="pat1"?1:2));if(!best||Math.abs(sm.inT-sh.h)<Math.abs(best.inT-sh.h))best=sm}
+ const {pts,inT,in76}=best;let dots="";
+ for(const [x,y,hit] of pts)if(Math.abs(x)<0.62&&Math.abs(y)<0.62)dots+=`<circle cx="${(cx+x*sc).toFixed(1)}" cy="${(cy-y*sc).toFixed(1)}" r="${hit?2.4:1.7}" fill="${hit?"#E4632B":"#1B2A24"}" fill-opacity="${hit?1:.75}"/>`;
+ const r70=sh.d70/2*sc;
+ const g=`<rect x="0" y="0" width="${W}" height="${W}" fill="#FBF9F4" stroke="#C9C2B2"/>
+ <circle cx="${cx}" cy="${cy}" r="${0.381*sc}" fill="none" stroke="#5C6B64" stroke-dasharray="4 3"/><text x="${cx}" y="${cy-0.381*sc-4}" font-size="9" fill="#5C6B64" text-anchor="middle">76 cm (30")</text>
+ <circle cx="${cx}" cy="${cy}" r="${r70}" fill="${tg.s1===sh?cur.load.color:"#C9A24A"}" fill-opacity=".10" stroke="#C9A24A"/><text x="${cx}" y="${cy+r70+10}" font-size="9" fill="#8A6F2E" text-anchor="middle">70% dos bagos: ${fmt(sh.d70*100,0)} cm</text>
+ <circle cx="${cx+e*sc}" cy="${cy}" r="${rT*sc}" fill="#fff" stroke="#0F2A22" stroke-width="1.5"/>${dots}
+ <line x1="${cx}" y1="${cy-5}" x2="${cx}" y2="${cy+5}" stroke="#0F2A22"/><line x1="${cx-5}" y1="${cy}" x2="${cx+5}" y2="${cy}" stroke="#0F2A22"/>
+ <text x="6" y="${W-6}" font-size="9" fill="#5C6B64">quadro de 1,2 × 1,2 m · + = centro da rosada · alvo ${tg.m.kind==="helice"?"zona central 15 cm":"prato"} a ${S.herr} cm</text>`;
+ $(id).innerHTML=g;
+ $(id.replace("pat","pat")+"t").innerHTML=`<b>${title}</b>: ${sh.l.name} ${sh.l.shot}, ${sh.ck.name}, a ${fmt(sh.d,1)} m`;
+ $(id+"v").innerHTML=`<b>${sh.n}</b> bagos disparados · <b>${in76}</b> dentro de 76 cm (${fmt(100*in76/sh.n,0)}%) · <b>${inT}</b> no alvo nesta amostra representativa (média calculada ${fmt(sh.h,1)}) · ${fmt(sh.p.e,2)} J cada`;
 }
 function drawField(m,load,s1,s2){
  const W=700,H=330,cx=350,cy=H-18;let g="",sc,P;
@@ -763,6 +789,10 @@ const HELP={
  hener:{t:"Energia necessária",b:()=>`<p><b>Hélice:</b> não há valor publicado. Os regulamentos definem o material (pás de poliestireno muito friável, testigo de polietileno não quebrável, encaixe por pressão com folga) e o teste de fragilidade com durômetro Shore (deformação máxima de 0,5 mm antes da ruptura). Romper parede fina de poliestireno frágil consome centésimos a décimos de joule por impacto, muito abaixo do 1 J que cada bago ainda carrega a 30–45 m: o gargalo é o número de bagos no colar e no testigo, não a energia.</p>
  <p><b>Prato:</b> a experiência de campo e as tabelas de fabricantes falam em bagos com 0,7 a 1,4 J (0,5 a 1 ft·lb) e 3 a 6 impactos para quebra confiável; de borda, o prato é menor e mais duro. O painel exige ≥ 0,7 J por bago para contar o impacto.</p>
  ${tg?`<div class="now">Agora: ${N(tg.s1.p.e,2)} J por bago a ${N(tg.s1.d,1)} m e ${N(tg.s2.p.e,2)} J a ${N(tg.s2.d,1)} m; energia somada no alvo ${N(tg.s1.h*tg.s1.p.e,1)} J e ${N(tg.s2.h*tg.s2.p.e,1)} J.</div>`:""}`,a:["hmin","hhit","kpi_e"]},
+ rosada:{t:"Rosada no alvo, em escala",b:()=>`<p>Cada quadro mostra 1,2 × 1,2 m no plano do alvo, na distância do tiro. Os pontos são os bagos do cartucho (todos, na quantidade real), espalhados por uma amostra da distribuição normal calibrada pelo choke; os laranja são os que caem dentro do alvo, desenhado com o erro de centragem escolhido. O círculo tracejado é o padrão de 76 cm (30") usado para medir chokes; o círculo dourado contém 70% dos bagos.</p>
+ <p>Por que o gráfico principal mostra um só bago: no modelo todos os bagos são iguais e voam igual; o que muda de um para outro é só a posição na rosada. É por isso que o alcance é calculado com um bago e a quebra com a rosada inteira.</p>
+ <p>A amostra é sorteada com sementes fixas (o desenho não pisca ao mover os controles) e, entre doze sorteios, é mostrado o que tem contagem no alvo mais próxima da média calculada, que é a usada na probabilidade. Tiros reais variam em torno dessa média: com média 2, é comum ver de 0 a 5 bagos no alvo.</p>
+ ${tg?`<div class="now">Agora: ${tg.s1.n} bagos no 1º tiro, rosada 70% de ${N(tg.s1.d70*100)} cm, média de ${N(tg.s1.h,1)} no alvo; ${tg.s2.n} bagos no 2º, ${N(tg.s2.d70*100)} cm, ${N(tg.s2.h,1)} no alvo.</div>`:""}`,a:["hhit","choke","herr","cart"]},
  tfield:{t:"Vista de cima do campo",b:()=>`<p>Desenho em escala com as medidas da modalidade: posto(s) embaixo, máquinas, fossa ou casas em verde, rede ou leque de queda dos pratos em dourado e arcos ou linhas de distância. A linha tracejada vai do posto aos pontos de quebra; os círculos coloridos são, em escala, as rosadas que contêm 70% dos bagos no 1º e no 2º tiro.</p>`,a:["xs","choke"]},
  obs:{t:"Observações e limitações",b:()=>`<p>A lista completa de hipóteses, simplificações e cuidados está na seção "Entenda o modelo", no item "Observações e limitações (lista completa)", logo abaixo das tabelas.</p>
  <p>Em resumo: bago isolado, esfera lisa, vento uniforme, terreno como degrau, sem ricochete, dados de cartucho do catálogo (provete de 30") e condições do local vindas de previsão meteorológica, não de medição no estande.</p>`,a:["aviso","metodo","loc"]},
