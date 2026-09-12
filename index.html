@@ -200,6 +200,8 @@ details.acc .body p{margin:0 0 8px}
   <div class="sec"><span id="tsec"></span><button type="button" class="q" data-help="mode" aria-label="Sobre esta modalidade">?</button></div>
   <div class="ctl"><div class="hint" style="display:block"><span id="trules"></span></div></div>
   <div class="grid2">
+    <div class="ctl"><label><span><span id="c1label">Cartucho do 1º tiro</span><button type="button" class="q" data-help="cart" aria-label="Sobre o cartucho por tiro">?</button></span></label><select id="c1" aria-labelledby="c1label"></select><div class="hint"><span id="c1hint"></span></div></div>
+    <div class="ctl"><label><span><span id="c2label">Cartucho do 2º tiro</span><button type="button" class="q" data-help="cart" aria-label="Sobre o cartucho por tiro">?</button></span></label><select id="c2" aria-labelledby="c2label"></select><div class="hint"><span id="c2hint"></span></div></div>
     <div class="ctl"><label><span><span id="ck1label">Choke do 1º cano</span><button type="button" class="q" data-help="choke" aria-label="Sobre os chokes">?</button></span></label><select id="ck1" aria-labelledby="ck1label"></select><div class="hint"><span id="ck1hint"></span></div></div>
     <div class="ctl"><label><span><span id="ck2label">Choke do 2º cano</span><button type="button" class="q" data-help="choke" aria-label="Sobre os chokes">?</button></span></label><select id="ck2" aria-labelledby="ck2label"></select><div class="hint"><span id="ck2hint"></span></div></div>
     <div class="ctl"><label><span><span id="x1label">1º tiro</span><button type="button" class="q" data-help="xs" aria-label="Sobre os pontos de quebra">?</button></span><b id="x1v"></b></label><input type="range" id="x1" min="0" max="60" step="0.5"><div class="hint"><span id="x1hint"></span></div></div>
@@ -356,9 +358,9 @@ const fmt=(n,k=1)=>{const r=Math.round(n*10**k)/10**k;return(r===0?0:n).toLocale
 const sgn=(n,k=0)=>(n>0?"+":"")+fmt(n,k);
 const $=id=>document.getElementById(id);
 
-const DEF={sel:"t200",angle:null,alt:650,temp:11,wind:0,cd:0,dist:100,h0:1.5,dz:0,drag:"loth",az:0,ws:null,wd:null,p:null,loc:null,mode:"livre",ck1:"mod",ck2:"im",x1:null,x2:null,st:4,pres:null,herr:5,hv:20,hmin:null};
+const DEF={sel:"t200",angle:null,alt:650,temp:11,wind:0,cd:0,dist:100,h0:1.5,dz:0,drag:"loth",az:0,ws:null,wd:null,p:null,loc:null,mode:"livre",ck1:"mod",ck2:"im",c1:null,c2:null,x1:null,x2:null,st:4,pres:null,herr:5,hv:20,hmin:null};
 const S=Object.assign({},DEF);
-const URLKEYS={sel:"c",angle:"a",alt:"alt",temp:"t",wind:"w",cd:"cd",dist:"d",h0:"h",dz:"dz",drag:"m",az:"az",ws:"ws",wd:"wd",p:"p",loc:"loc",mode:"md",ck1:"k1",ck2:"k2",x1:"x1",x2:"x2",st:"st",pres:"pr",herr:"he",hv:"hv",hmin:"hk"};
+const URLKEYS={sel:"c",angle:"a",alt:"alt",temp:"t",wind:"w",cd:"cd",dist:"d",h0:"h",dz:"dz",drag:"m",az:"az",ws:"ws",wd:"wd",p:"p",loc:"loc",mode:"md",ck1:"k1",ck2:"k2",c1:"c1",c2:"c2",x1:"x1",x2:"x2",st:"st",pres:"pr",herr:"he",hv:"hv",hmin:"hk"};
 const RANGES={alt:"alt",temp:"temp",wind:"wind",cd:"cd",dist:"dist",h0:"h0",dz:"dz",az:"az",herr:"herr",hv:"hv"};
 function clampTo(id,v){const el=$(id),step=+el.step||1,mn=+el.min,mx=+el.max;if(!isFinite(v))return null;v=Math.min(mx,Math.max(mn,v));return Math.round(v/step)*step;}
 function readURL(){
@@ -372,6 +374,7 @@ function readURL(){
  const loc=q.get("loc");S.loc=loc?loc.slice(0,80):null;
  const md=q.get("md");if(md&&MODES[md])S.mode=md;
  for(const k of ["k1","k2"]){const v=q.get(k);if(v&&CHOKES.some(c=>c.id===v))S[k==="k1"?"ck1":"ck2"]=v}
+ for(const k of ["c1","c2"]){const v=q.get(k);if(v&&LOADS.some(l=>l.id===v))S[k]=v}
  S.x1=num("x1",-20,80);S.x2=num("x2",-20,80);const st=parseInt(q.get("st"));if(st>=1&&st<=8)S.st=st;
  const pr=num("pr",0.2,1);if(pr!==null)S.pres=pr;const hk=parseInt(q.get("hk"));if(hk>=1&&hk<=10)S.hmin=hk;
 }
@@ -446,15 +449,15 @@ function render(){
 
 // ---------- modalidades, chokes e alvo ----------
 const CHOKES=[
- {id:"cyl",name:"Cilíndrico",stars:"*****",mm:0.00,pct:40},
- {id:"sk",name:"Skeet",stars:"*****",mm:0.13,pct:45},
- {id:"ic",name:"Improved cylinder ¼",stars:"****",mm:0.25,pct:50},
- {id:"lm",name:"Light modified",stars:"",mm:0.38,pct:55},
- {id:"mod",name:"Modified ½",stars:"***",mm:0.51,pct:60},
- {id:"im",name:"Improved modified ¾",stars:"**",mm:0.64,pct:65},
- {id:"lf",name:"Light full",stars:"",mm:0.76,pct:68},
- {id:"full",name:"Full",stars:"*",mm:0.89,pct:70},
- {id:"xf",name:"Extra full",stars:"",mm:1.02,pct:75}];
+ {id:"cyl",name:"Cylinder",abbr:"Cyl",pt:"cilíndrico, sem constrição",stars:"*****",mm:0.00,pct:40},
+ {id:"sk",name:"Skeet",abbr:"Sk",pt:"skeet, levemente aberto",stars:"*****",mm:0.13,pct:45},
+ {id:"ic",name:"Improved Cylinder",abbr:"IC",pt:"um quarto (¼)",stars:"****",mm:0.25,pct:50},
+ {id:"lm",name:"Light Modified",abbr:"LM",pt:"entre ¼ e ½",stars:"",mm:0.38,pct:55},
+ {id:"mod",name:"Modified",abbr:"Mod",pt:"meio (½)",stars:"***",mm:0.51,pct:60},
+ {id:"im",name:"Improved Modified",abbr:"IM",pt:"três quartos (¾)",stars:"**",mm:0.64,pct:65},
+ {id:"lf",name:"Light Full",abbr:"LF",pt:"entre ¾ e full",stars:"",mm:0.76,pct:68},
+ {id:"full",name:"Full",abbr:"F",pt:"full, fechado",stars:"*",mm:0.89,pct:70},
+ {id:"xf",name:"Extra Full",abbr:"XF",pt:"extra full, muito fechado",stars:"",mm:1.02,pct:75}];
 const chokeOf=id=>CHOKES.find(c=>c.id===id)||CHOKES[4];
 const MODES={
  livre:{name:"Nenhuma: só o bago isolado",kind:null},
@@ -466,12 +469,16 @@ const MODES={
   rules:"5 postos em linha, 15 m atrás da fossa; 15 máquinas em 5 grupos de 3 (1,00 a 1,10 m entre máquinas do grupo, 3,00 a 3,30 m entre grupos); pratos lançados a 76 m ± 1 m, altura de 1,5 a 3,5 m medida a 10 m, ângulos até 45° para cada lado; dois tiros; carga máxima 24 g (+0,5), chumbo até 2,6 mm; prato de 110 mm, 25 a 26 mm de altura, 105 g.",src:"ISSF Shotgun Rules"},
  ut:{name:"Fossa Universal (FITASC UT)",kind:"prato",R:15,flight:65,cone:45,maxg:28,maxd:2.5,shots:2,x:[18,28],xr:[0,55],xl:"além da fossa",pres:0.5,
   rules:"5 postos de 1 × 1 m a 2,5 m entre centros, 15 m à frente da borda da fossa; 5 máquinas em linha, 1,00 a 1,25 m entre pratos; 10 esquemas oficiais com alcance de 60 a 70 m (± 5 m), altura de 1,5 a 3,5 m a 10 m, leque de 90° com vértice na máquina 3; dois tiros; carga máxima 28 g (+2%), chumbo até 2,5 mm; prato de 11 cm, 25 a 26 mm, 100 a 110 g.",src:"International Rules Universal Trench, FITASC 2017"},
- ata:{name:"Trap americano (ATA, 16 jardas)",kind:"prato",R:14.63,flight:45.7,cone:17,maxg:31.9,maxd:2.41,shots:1,x:[18,26],xr:[0,40],xl:"além da casa",pres:0.5,
-  rules:"5 postos a 3 jardas entre si e 16 jardas (14,63 m) do ponto B; handicap de 19 a 27 jardas; pratos simples lançados de 49 a 51 jardas (44,8 a 46,6 m), altura de 8 a 10 pés (2,4 a 3,0 m) a 10 jardas, abertura mínima de 17° para cada lado (34° no total); um tiro por prato nos simples; carga máxima 1⅛ oz (31,9 g), chumbo até nº 7½; prato de até 4 5/16\" (110 mm) por 1 1/8\" (28,6 mm).",src:"ATA Official Rules"},
+ ata:{name:"Trap americano (ATA, 16 jardas)",kind:"prato",R:14.63,flight:45.7,cone:17,maxg:32,maxd:2.41,shots:1,x:[18,26],xr:[0,40],xl:"além da casa",pres:0.5,
+  rules:"5 postos a 3 jardas entre si e 16 jardas (14,63 m) do ponto B; handicap de 19 a 27 jardas; pratos simples lançados de 49 a 51 jardas (44,8 a 46,6 m), altura de 8 a 10 pés (2,4 a 3,0 m) a 10 jardas, abertura mínima de 17° para cada lado (34° no total); um tiro por prato nos simples; carga máxima 1⅛ oz (≈ 32 g), chumbo até nº 7½; prato de até 4 5/16\" (110 mm) por 1 1/8\" (28,6 mm).",src:"ATA Official Rules"},
  sk:{name:"Skeet (ISSF)",kind:"prato",shots:1,x:[0,4],xr:[-15,15],xl:"a partir do cruzamento",pres:0.5,maxg:24.5,maxd:2.0,
   rules:"Postos 1 a 7 num arco de raio 19,20 m, corda de 36,80 m a 5,50 m do centro (estaca do cruzamento); postos a 8,13 m entre si na corda; posto 8 no centro da corda; casa alta a 3,05 m e casa baixa a 1,05 m; o prato passa por um aro de 0,90 a 0,95 m a 4,60 m acima do centro; alcance de 68 m ± 1 m; limite de tiro a 40,30 m da casa; um tiro por prato (dois nos duplos); carga máxima 24 g (+0,5), chumbo até 2,0 mm.",src:"ISSF Shotgun Rules 6.4.21"},
- sp:{name:"Percurso de caça / Sporting (distância livre)",kind:"prato",shots:2,x:[25,32],xr:[8,60],xl:"do posto",pres:0.7,maxg:28,maxd:2.5,
-  rules:"Distâncias e trajetórias livres, definidas pelo desenho do percurso; dois tiros na maioria dos formatos; FITASC: carga máxima 28 g (+2%), chumbo até 2,5 mm; pratos padrão e também minis, rabbits e battues.",src:"FITASC Sporting / Compak"}};
+ sp:{name:"Percurso de caça (FITASC Sporting)",kind:"prato",shots:2,x:[25,32],xr:[8,60],xl:"do posto",pres:0.7,maxg:28,maxd:2.5,
+  rules:"Postos de 1 m² ou círculos de 1 m; rodada de 25 pratos por percurso, com 3 a 5 máquinas por posto (A, B, C, D…), simples com dois tiros e duplos (a segundo tiro, simultâneos ou rafale); trajetórias livres dentro da ética de caça (nem muito perto, nem além do alcance útil); pratos padrão, rabbit, midi, super mini, battue, flash e ZZ; carga máxima 28 g (+2%), chumbo até 2,5 mm; conta o prato com pelo menos um pedaço visivelmente arrancado.",src:"FITASC International Rules Sporting 2025"},
+ cs:{name:"Compak Sporting (FITASC)",kind:"prato",shots:2,x:[22,30],xr:[6,55],xl:"do posto",pres:0.7,maxg:28.5,maxd:2.6,
+  rules:"Zona retangular de 40 m de largura por 25 m de profundidade, marcada por 4 estacas, sobre a qual todos os pratos devem passar em ao menos um ponto; 5 postos de 1 × 1 m em linha, 3 a 5 m entre centros, 4 a 8 m atrás da linha AD do retângulo, posto 3 centrado; ao menos 6 máquinas em posição livre (atrás dos postos só se 4 m mais altas); rodada de 25 pratos, 5 por posto (5 simples ou 3 simples e 1 duplo); limitadores de ângulo de tiro em cada posto; carga máxima 28 g (+0,5), chumbo até 2,5 mm (+0,1).",src:"FITASC International Compak Sporting Rules"},
+ fs:{name:"5-Stand (NSCA)",kind:"prato",shots:2,x:[22,30],xr:[6,55],xl:"do posto",pres:0.7,maxg:32,maxd:2.41,
+  rules:"5 postos (gaiolas de ao menos 7 pés de altura e até 54 polegadas de abertura) em linha reta, 4 a 6 jardas entre centros (5 recomendadas); 6 ou 8 máquinas automáticas, com rabbit e prato vertical (springing teal) e uma torre de ao menos 12 pés; sequência de alvos em cartão-menu; rodadas de 25 pratos com simples e duplos; área mínima de 50 jardas de frente e 300 jardas de profundidade; calibre 12 com no máximo 1⅛ oz (≈ 32 g), chumbo até nº 7½.",src:"NSCA Rules 2026, NSCA 5-Stand Sporting"}};
 const R76=0.381,D76=36.6,CLAY_A=Math.PI*5.5*5.5;
 function sigmaAt(pct,d){const s40=R76/Math.sqrt(-2*Math.log(1-pct/100));return s40*d/D76}
 function hitsDisc(n,sig,r,e){let sum=0;const nr=30,nt=48;for(let i=0;i<nr;i++){const rr=(i+0.5)*r/nr;for(let j=0;j<nt;j++){const th=j*2*Math.PI/nt,x=rr*Math.cos(th)-e,y=rr*Math.sin(th);sum+=Math.exp(-(x*x+y*y)/(2*sig*sig))*rr}}return n*sum*(r/nr)*(2*Math.PI/nt)/(2*Math.PI*sig*sig)}
@@ -480,9 +487,11 @@ function poissonGE(k,mu){let p=Math.exp(-mu),cum=p;for(let i=1;i<k;i++){p*=mu/i;
 const SK={r:19.2,half:18.4,chord:5.5};
 function skStation(k){if(k===8)return[0,0];const a1=Math.atan2(-SK.chord,-SK.half),a7=Math.atan2(-SK.chord,SK.half),a=a1+(a7-a1)*(k-1)/6;return[SK.r*Math.cos(a),SK.chord+SK.r*Math.sin(a)]}
 function skTarget(s){const h=[-SK.half-0.9,0],dx=0-h[0],dy=SK.chord-h[1],L=Math.hypot(dx,dy);return[0+s*dx/L,SK.chord+s*dy/L]}
-function shotDistance(m,x){if(S.mode==="sk"){const st=skStation(S.st),t=skTarget(x);return Math.hypot(t[0]-st[0],t[1]-st[1])}if(S.mode==="sp")return x;return m.R+x}
+const FREE=k=>k==="sp"||k==="cs"||k==="fs";
+function shotDistance(m,x){if(S.mode==="sk"){const st=skStation(S.st),t=skTarget(x);return Math.hypot(t[0]-st[0],t[1]-st[1])}if(FREE(S.mode))return x;return m.R+x}
 $("mode").innerHTML=Object.keys(MODES).map(k=>`<option value="${k}">${MODES[k].name}</option>`).join("");
-for(const id of ["ck1","ck2"])$(id).innerHTML=CHOKES.map(c=>`<option value="${c.id}">${c.name}${c.stars?" ("+c.stars+")":""} · ${fmt(c.mm,2)} mm · ${c.pct}%</option>`).join("");
+for(const id of ["ck1","ck2"])$(id).innerHTML=CHOKES.map(c=>`<option value="${c.id}">${c.name} (${c.abbr}) · ${fmt(c.mm,2)} mm · ${c.pct}%</option>`).join("");
+for(const id of ["c1","c2"])$(id).innerHTML=`<option value="">Mesmo do painel</option>`+LOADS.map(l=>`<option value="${l.id}">${l.name} nº ${l.shot} · ${l.carga} g · ${l.v0} m/s</option>`).join("");
 let tg=null;
 function renderTarget(load,c){
  const m=MODES[S.mode];$("mode").value=S.mode;
@@ -490,13 +499,17 @@ function renderTarget(load,c){
  $("target").hidden=!m.kind;if(!m.kind){tg=null;return}
  const xr=m.xr,x1=S.x1===null?m.x[0]:Math.min(xr[1],Math.max(xr[0],S.x1)),x2=S.x2===null?m.x[1]:Math.min(xr[1],Math.max(xr[0],S.x2));
  const pres=S.pres===null?(m.pres||0.5):S.pres,kmin=S.hmin===null?(m.kind==="helice"?4:3):S.hmin;
- const sim=simulate(load,2,Object.assign({},c,{h0:1.5,dz:0})),e=S.herr/100,n=sim.n;
+ const l1=LOADS.find(l=>l.id===S.c1)||load,l2=LOADS.find(l=>l.id===S.c2)||load,e=S.herr/100;
+ const sims={};const simOf=l=>sims[l.id]||(sims[l.id]=simulate(l,2,Object.assign({},c,{h0:1.5,dz:0})));
  const rT=m.kind==="helice"?0.075:Math.sqrt(CLAY_A*pres/Math.PI)/100;
- const shot=(x,ck)=>{const d=shotDistance(m,x),p=at(sim.pts,d)||sim.pts[sim.pts.length-1],sig=sigmaAt(ck.pct,d),h=hitsDisc(n,sig,rT,e);
+ const shot=(x,ck,l)=>{const sim=simOf(l),n=sim.n,d=shotDistance(m,x),p=at(sim.pts,d)||sim.pts[sim.pts.length-1],sig=sigmaAt(ck.pct,d),h=hitsDisc(n,sig,rT,e);
   const hT=m.kind==="helice"?hitsDisc(n,sig,0.052,e):null,hH=m.kind==="helice"?h+0.45*(hitsDisc(n,sig,0.14,e)-h):null;
-  const eok=m.kind==="helice"?true:p.e>=0.7;return{x,d,p,sig,h,hT,hH,prob:eok?poissonGE(kmin,h):0,eok,d70:2*sig*Math.sqrt(-2*Math.log(0.3)),ck,lead:S.hv*p.t}};
- const s1=shot(x1,chokeOf(S.ck1)),s2=shot(x2,chokeOf(S.ck2)),two=m.shots===2,pc=two?1-(1-s1.prob)*(1-s2.prob):s1.prob;
- const over=load.carga>m.maxg,overd=load.d>m.maxd+0.001;tg={m,s1,s2,pc,x1,x2,pres,kmin,n,over,overd,rT};
+  const eok=m.kind==="helice"?true:p.e>=0.7;return{x,d,p,sig,h,hT,hH,n,l,prob:eok?poissonGE(kmin,h):0,eok,d70:2*sig*Math.sqrt(-2*Math.log(0.3)),ck,lead:S.hv*p.t,over:l.carga>m.maxg,overd:l.d>m.maxd+0.001}};
+ const s1=shot(x1,chokeOf(S.ck1),l1),s2=shot(x2,chokeOf(S.ck2),l2),two=m.shots===2,pc=two?1-(1-s1.prob)*(1-s2.prob):s1.prob;
+ const n=s1.n,over=s1.over||(two&&s2.over),overd=s1.overd||(two&&s2.overd);tg={m,s1,s2,pc,x1,x2,pres,kmin,n,over,overd,rT};
+ $("c1").value=S.c1||"";$("c2").value=S.c2||"";
+ $("c1hint").textContent=`${l1.name} nº ${l1.shot}: ${l1.carga} g, ~${s1.n} bagos de Ø ${fmt(l1.d,2)} mm, V0 ${l1.v0} m/s${s1.over||s1.overd?" · fora do limite da modalidade":""}`;
+ $("c2hint").textContent=`${l2.name} nº ${l2.shot}: ${l2.carga} g, ~${s2.n} bagos de Ø ${fmt(l2.d,2)} mm, V0 ${l2.v0} m/s${s2.over||s2.overd?" · fora do limite da modalidade":""}`;
  // controles
  $("tsec").textContent=m.name;$("trules").innerHTML=`<b>Regras e medidas:</b> ${m.rules} <i>(${m.src})</i>`;
  for(const [id,x,sh] of [["x1",x1,s1],["x2",x2,s2]]){const el=$(id);el.min=xr[0];el.max=xr[1];el.value=x;$(id+"v").textContent=(S.mode==="sk"?sgn(x,1):fmt(x,1))+" m";
@@ -509,15 +522,16 @@ function renderTarget(load,c){
  // hero
  $("tproblabel").textContent=m.kind==="helice"?`Probabilidade de soltar o testigo (${two?"dois tiros":"um tiro"}, critério acima)`:`Probabilidade de quebrar o prato (${two?"dois tiros":"um tiro"}, critério acima)`;
  $("tprob").innerHTML=`${fmt(100*pc,pc>0.99?1:0)}<small>%</small>`;
- $("tmeta").innerHTML=`${load.name} ${load.shot} · ${load.carga} g · ~${n} bagos${over?` · <span style="color:#E4632B">acima de ${fmt(m.maxg,1)} g</span>`:""}${overd?` · <span style="color:#E4632B">chumbo acima de ${fmt(m.maxd,1)} mm</span>`:""}<br>1º tiro: <b>${s1.ck.name}</b> a <b>${fmt(s1.d,1)} m</b> → ${fmt(100*s1.prob,0)}%<br>${two?"2º tiro":"2º (treino)"}: <b>${s2.ck.name}</b> a <b>${fmt(s2.d,1)} m</b> → ${fmt(100*s2.prob,0)}%`;
- drawField(m,load,s1,s2);
+ const lim=x=>(x.over||x.overd)?` <span style="color:#E4632B">(fora do limite: ${fmt(m.maxg,1)} g / ${fmt(m.maxd,1)} mm)</span>`:"";
+ $("tmeta").innerHTML=`limites da modalidade: <b>${fmt(m.maxg,1)} g</b> · chumbo até <b>${fmt(m.maxd,1)} mm</b><br>1º tiro: <b>${l1.name} ${l1.shot}</b>${lim(s1)} · <b>${s1.ck.name}</b> a <b>${fmt(s1.d,1)} m</b> → ${fmt(100*s1.prob,0)}%<br>${two?"2º tiro":"2º (treino)"}: <b>${l2.name} ${l2.shot}</b>${lim(s2)} · <b>${s2.ck.name}</b> a <b>${fmt(s2.d,1)} m</b> → ${fmt(100*s2.prob,0)}%`;
+ drawField(m,l1,s1,s2);
  // tabela por tiro
  const row=(l,f)=>`<tr><td>${l}</td><td>${f(s1)}</td><td${two?"":' style="color:var(--mute)"'}>${f(s2)}</td></tr>`;
- const rows=[row("Choke",x=>x.ck.name),row("Distância do atirador",x=>fmt(x.d,1)+" m"),row("Tempo do bago",x=>fmt(x.p.t,3)+" s"),row("Velocidade do bago",x=>fmt(x.p.v,0)+" m/s"),row("Energia por bago",x=>fmt(x.p.e,2)+" J"+(x.eok?"":" ⚠")),row("Rosada com 70% dos bagos",x=>fmt(x.d70*100,0)+" cm"),row("Densidade no centro",x=>fmt(n*(1-Math.exp(-0.0025/(2*x.sig*x.sig)))/(Math.PI*0.25),1)+" /dm²")];
+ const rows=[row("Cartucho",x=>`${x.l.name} ${x.l.shot} · ${x.l.carga} g · ~${x.n} bagos`),row("Choke",x=>`${x.ck.name} (${x.ck.abbr})`),row("Distância do atirador",x=>fmt(x.d,1)+" m"),row("Tempo do bago",x=>fmt(x.p.t,3)+" s"),row("Velocidade do bago",x=>fmt(x.p.v,0)+" m/s"),row("Energia por bago",x=>fmt(x.p.e,2)+" J"+(x.eok?"":" ⚠")),row("Rosada com 70% dos bagos",x=>fmt(x.d70*100,0)+" cm"),row("Densidade no centro",x=>fmt(x.n*(1-Math.exp(-0.0025/(2*x.sig*x.sig)))/(Math.PI*0.25),1)+" /dm²")];
  if(m.kind==="helice"){rows.push(row("Bagos no testigo (10,4 cm)",x=>fmt(x.hT,1)),row("Bagos na zona central (15 cm)",x=>fmt(x.h,1)),row("Bagos na hélice inteira",x=>fmt(x.hH,0)))}else rows.push(row(`Bagos no prato (${fmt(CLAY_A*pres,0)} cm²)`,x=>fmt(x.h,1)));
  rows.push(row("Energia somada no alvo",x=>fmt(x.h*x.p.e,1)+" J"),row(`Probabilidade de ${kmin}+ impactos`,x=>fmt(100*x.prob,x.prob>0.99?1:0)+" %"),row("Adiantamento (estimativa)",x=>fmt(x.lead,1)+" m"));
  $("ttbl").querySelector("tbody").innerHTML=rows.join("");
- $("tnote").innerHTML=`Rosada modelada como distribuição normal bidimensional calibrada pelo percentual do choke (valores típicos; cada arma padroniza diferente). ${m.kind==="helice"?"Hélice tomada como disco de 28 cm com 45% de área ocupada pelas pás; zona central = testigo + colar.":"Prato de 110 mm; a área efetiva depende da apresentação escolhida; impacto só conta com energia ≥ 0,7 J por bago (≈ 0,5 ft·lb)."} Probabilidade por Poisson; com dois tiros, o segundo é tomado como independente e só decisivo se o primeiro falhar. ${two?"":"Nesta modalidade a regra prevê um tiro por alvo; o segundo aparece só para treino."} ${over||overd?"<b>Atenção:</b> o cartucho selecionado não é permitido nesta modalidade. ":""}Estimativa didática.`;
+ $("tnote").innerHTML=`Rosada modelada como distribuição normal bidimensional calibrada pelo percentual do choke (valores típicos; cada arma padroniza diferente). ${m.kind==="helice"?"Hélice tomada como disco de 28 cm com 45% de área ocupada pelas pás; zona central = testigo + colar.":"Prato de 110 mm; a área efetiva depende da apresentação escolhida; impacto só conta com energia ≥ 0,7 J por bago (≈ 0,5 ft·lb)."} Probabilidade por Poisson; com dois tiros, o segundo é tomado como independente e só decisivo se o primeiro falhar. ${two?"":"Nesta modalidade a regra prevê um tiro por alvo; o segundo aparece só para treino."} ${over||overd?"<b>Atenção:</b> há cartucho fora do limite desta modalidade. ":""}Estimativa didática.`;
 }
 function drawField(m,load,s1,s2){
  const W=700,H=330,cx=350,cy=H-18;let g="",sc,P;
@@ -545,11 +559,16 @@ function drawField(m,load,s1,s2){
   const [sx,sy]=P(...skStation(S.st));const [a1x,a1y]=P(...skTarget(s1.x)),[a2x,a2y]=P(...skTarget(s2.x));
   g+=`<line x1="${sx}" y1="${sy}" x2="${a1x}" y2="${a1y}" stroke="#C9A24A" stroke-dasharray="4 3"/>`+patt(a2x,a2y,s2,"2º")+patt(a1x,a1y,s1,"1º",true);
   g+=`<text x="${cx}" y="${H-4}" fill="#B9C8C0" font-size="10" text-anchor="middle">corda 36,80 m · raio 19,20 m · pratos a 68 m · limite de tiro a 40,30 m das casas</text>`;
- }else if(S.mode==="sp"){
-  sc=(H-40)/(Math.max(s1.d,s2.d)+10);P=(d,a)=>[cx+d*sc*Math.sin(a),cy-d*sc*Math.cos(a)];
-  for(let x=10;x<=Math.max(s1.d,s2.d)+5;x+=10){g+=`<line x1="${cx-120}" y1="${cy-x*sc}" x2="${cx+120}" y2="${cy-x*sc}" stroke="#274A3F" stroke-dasharray="2 5"/><text x="${cx-126}" y="${cy-x*sc+4}" fill="#B9C8C0" font-size="10" text-anchor="end">${x} m</text>`}
+ }else if(FREE(S.mode)){
+  const far=Math.max(s1.d,s2.d,S.mode==="cs"?33:0)+8;sc=Math.min((H-40)/far,(W-40)/44);P=(d,a)=>[cx+d*sc*Math.sin(a),cy-d*sc*Math.cos(a)];
+  for(let x=10;x<=far-4;x+=10){g+=`<line x1="${cx-22*sc}" y1="${cy-x*sc}" x2="${cx+22*sc}" y2="${cy-x*sc}" stroke="#274A3F" stroke-dasharray="2 5" stroke-opacity=".6"/><text x="${cx-22*sc-6}" y="${cy-x*sc+4}" fill="#B9C8C0" font-size="10" text-anchor="end">${x} m</text>`}
+  if(S.mode==="cs"){g+=`<rect x="${cx-20*sc}" y="${cy-31*sc}" width="${40*sc}" height="${25*sc}" fill="#C9A24A" fill-opacity=".08" stroke="#C9A24A" stroke-dasharray="4 3"/><text x="${cx}" y="${cy-31*sc-6}" fill="#C9A24A" font-size="11" text-anchor="middle">zona de passagem dos pratos: 40 × 25 m (linha AD a 6 m dos postos)</text>`;
+   for(let i=-2;i<=2;i++){g+=`<rect x="${cx+i*4*sc-5}" y="${cy-5}" width="10" height="10" fill="${i===0?"#E4632B":"#274A3F"}" stroke="#B9C8C0"/><text x="${cx+i*4*sc}" y="${cy+16}" fill="#B9C8C0" font-size="9" text-anchor="middle">${i+3}</text>`}
+   g+=`<text x="${cx+8*sc+10}" y="${cy+4}" fill="#B9C8C0" font-size="10">postos 1 m², 3 a 5 m entre centros</text>`;}
+  else if(S.mode==="fs"){for(let i=-2;i<=2;i++){g+=`<rect x="${cx+i*4.57*sc-5}" y="${cy-5}" width="10" height="10" fill="${i===0?"#E4632B":"#274A3F"}" stroke="#B9C8C0"/><text x="${cx+i*4.57*sc}" y="${cy+16}" fill="#B9C8C0" font-size="9" text-anchor="middle">${i+3}</text>`}
+   g+=`<text x="${cx+9.14*sc+10}" y="${cy+4}" fill="#B9C8C0" font-size="10">gaiolas a 5 jardas (4,57 m)</text><text x="${cx}" y="${cy-far*sc+14}" fill="#C9A24A" font-size="11" text-anchor="middle">6 ou 8 máquinas em posição livre (rabbit, teal, torre ≥ 12 pés)</text>`;}
+  else g+=`<rect x="${cx-8}" y="${cy-8}" width="16" height="16" fill="#E4632B" stroke="#0F2A22"/><text x="${cx+12}" y="${cy+4}" fill="#B9C8C0" font-size="11">posto de 1 m²</text><text x="${cx}" y="${cy-far*sc+14}" fill="#C9A24A" font-size="11" text-anchor="middle">trajetórias livres, 3 a 5 máquinas por posto</text>`;
   const [b1x,b1y]=P(s1.d,0),[b2x,b2y]=P(s2.d,0);g+=`<line x1="${cx}" y1="${cy}" x2="${b2x}" y2="${b2y}" stroke="#C9A24A" stroke-dasharray="4 3"/>`+patt(b2x,b2y,s2,"2º")+patt(b1x,b1y,s1,"1º",close);
-  g+=`<rect x="${cx-8}" y="${cy-8}" width="16" height="16" fill="#E4632B" stroke="#0F2A22"/><text x="${cx+12}" y="${cy+4}" fill="#B9C8C0" font-size="11">posto</text>`;
  }else{ // fossa / trap
   const depth=m.R+m.flight+4;sc=(H-40)/depth;P=(d,a)=>[cx+d*sc*Math.sin(a),cy-d*sc*Math.cos(a)];
   const cone=m.cone*Math.PI/180,[tx,ty]=P(m.R,0);
@@ -578,7 +597,7 @@ function summary(){
  if(S.loc)L.push(`Local: ${S.loc}${S.p?` · ${fmt(S.p,0)} hPa`:""}${S.ws!==null?` · vento ${fmt(S.ws,1)} m/s de ${compass(S.wd)} · tiro para ${compass(S.az)} (${S.az}°)`:""}`);
  L.push(`Altura do disparo ${fmt(S.h0,1)} m · desnível do terreno na queda ${sgn(S.dz)} m`);
  L.push(`Ângulo ${fmt(ang,2)}°${S.angle===null?" (ótimo)":""}`);
- if(tg){L.push("");L.push(`Modalidade: ${tg.m.name}`);L.push(`1º tiro ${tg.s1.ck.name} a ${fmt(tg.s1.d,1)} m: ${fmt(tg.s1.h,1)} bagos no alvo, ${fmt(tg.s1.p.e,2)} J cada → ${fmt(100*tg.s1.prob,0)}%`);L.push(`2º tiro ${tg.s2.ck.name} a ${fmt(tg.s2.d,1)} m: ${fmt(tg.s2.h,1)} bagos, ${fmt(tg.s2.p.e,2)} J → ${fmt(100*tg.s2.prob,0)}%`);L.push(`Probabilidade combinada: ${fmt(100*tg.pc,0)}%`);}
+ if(tg){L.push("");L.push(`Modalidade: ${tg.m.name}`);L.push(`1º tiro: ${tg.s1.l.name} ${tg.s1.l.shot} · ${tg.s1.ck.name} a ${fmt(tg.s1.d,1)} m: ${fmt(tg.s1.h,1)} bagos no alvo, ${fmt(tg.s1.p.e,2)} J cada → ${fmt(100*tg.s1.prob,0)}%`);L.push(`2º tiro: ${tg.s2.l.name} ${tg.s2.l.shot} · ${tg.s2.ck.name} a ${fmt(tg.s2.d,1)} m: ${fmt(tg.s2.h,1)} bagos, ${fmt(tg.s2.p.e,2)} J → ${fmt(100*tg.s2.prob,0)}%`);L.push(`Probabilidade combinada: ${fmt(100*tg.pc,0)}%`);}
  L.push("");
  L.push(`ALCANCE MÁXIMO: ${fmt(sim.range,0)} m`);
  L.push(`Voo ${fmt(sim.time,2)} s · ápice ${fmt(sim.apex,0)} m · queda a ${fmt(sim.vf,1)} m/s com ${fmt(sim.ef,3)} J por bago`);
@@ -720,13 +739,16 @@ const HELP={
  <ul>${Object.keys(MODES).filter(k=>k!=="livre").map(k=>`<li><b>${MODES[k].name}</b>: ${MODES[k].rules} <i>(${MODES[k].src})</i></li>`).join("")}</ul>
  ${m.kind?`<div class="now">Agora: ${m.name}. ${tg.over||tg.overd?`O ${cur.load.name} ${cur.load.shot} (${cur.load.carga} g, Ø ${fmt(cur.load.d,2)} mm) não é permitido: limite de ${fmt(m.maxg,1)} g e ${fmt(m.maxd,1)} mm.`:`O ${cur.load.name} ${cur.load.shot} (${cur.load.carga} g, Ø ${fmt(cur.load.d,2)} mm) está dentro do limite de ${fmt(m.maxg,1)} g e ${fmt(m.maxd,1)} mm.`}</div>`:""}`},a:["choke","xs","hhit","hener"]},
  choke:{t:"Chokes do 1º e do 2º cano",b:()=>`<p>O choke é o estrangulamento na boca do cano; quanto maior, mais fechada a rosada. A convenção clássica mede o percentual de bagos dentro de 76 cm a 36,6 m (40 jardas). Constrições nominais do calibre 12 e percentuais típicos:</p>
- <ul>${CHOKES.map(c=>`<li><b>${c.name}</b>${c.stars?" ("+c.stars+")":""}: ${fmt(c.mm,2)} mm (${fmt(c.mm/25.4*1000,0)} milésimos de polegada), ≈ ${c.pct}%.</li>`).join("")}</ul>
+ <ul>${CHOKES.map(c=>`<li><b>${c.name}</b> (${c.abbr}${c.stars?", "+c.stars:""}): ${c.pt}; ${fmt(c.mm,2)} mm (${fmt(c.mm/25.4*1000,0)} milésimos de polegada), ≈ ${c.pct}%.</li>`).join("")}</ul>
  <p>As estrelas são a marcação europeia (***** cilíndrico até * full). Os percentuais variam com arma, cartucho e bucha: o certo é medir no papel. O painel usa o percentual para calibrar uma distribuição normal bidimensional, cuja abertura cresce em proporção à distância.</p>
  ${tg?`<div class="now">Agora: 1º cano ${tg.s1.ck.name} → rosada 70% de ${N(tg.s1.d70*100)} cm a ${N(tg.s1.d,1)} m; 2º cano ${tg.s2.ck.name} → ${N(tg.s2.d70*100)} cm a ${N(tg.s2.d,1)} m.</div>`:""}
  <p>Uso comum: hélice ½ e ¾; fossa ¾ e full; skeet skeet/cilíndrico; sporting ¼ a ½ conforme a distância.</p>`,a:["xs","hhit","herr"]},
  xs:{t:"Pontos de quebra",b:()=>{const m=MODES[S.mode];return`<p>Onde você pretende quebrar o alvo em cada tiro, medido ${m.xl}${S.mode==="sk"?" (negativo = antes do cruzamento, positivo = depois; o posto define a distância real)":""}. O segundo tiro costuma sair alguns metros adiante do primeiro. Nas modalidades de um tiro só (skeet ISSF, trap americano simples) o segundo aparece apenas para treino.</p>
- <p>Referências de uso: hélice, primeiro tiro poucos metros após a máquina e segundo antes da metade do caminho até a rede; fossa, primeiro a 30–35 m do posto e segundo a 40–45 m; skeet, perto do cruzamento (≈ 19 a 21 m nos postos 1 a 7, poucos metros no posto 8).</p>
+ <p>Referências de uso: hélice, primeiro tiro poucos metros após a máquina e segundo antes da metade do caminho até a rede; fossa, primeiro a 30–35 m do posto e segundo a 40–45 m; skeet, perto do cruzamento (≈ 19 a 21 m nos postos 1 a 7, poucos metros no posto 8); Compak e 5-Stand, a maioria dos pratos entre 15 e 40 m; percurso de caça, de 10 a 50 m conforme o desenho.</p>
  ${tg?`<div class="now">Agora: 1º tiro a ${N(tg.s1.d,1)} m do atirador (bago em ${N(tg.s1.p.t,3)} s); 2º a ${N(tg.s2.d,1)} m (${N(tg.s2.p.t,3)} s).</div>`:""}`},a:["choke","hv","hhit"]},
+ cart:{t:"Cartucho por tiro",b:()=>`<p>Cada tiro pode usar um cartucho diferente, como se faz na prática: um mais aberto ou de chumbo menor no primeiro tiro, perto, e um mais pesado ou de chumbo maior no segundo, mais longe. "Mesmo do painel" usa o cartucho selecionado nos chips do topo.</p>
+ <p>O cálculo de cada tiro usa a velocidade inicial, a massa e o número de bagos do cartucho escolhido; o painel avisa se ele excede a carga ou o diâmetro de chumbo permitidos na modalidade.</p>
+ ${tg?`<div class="now">Agora: 1º tiro ${tg.s1.l.name} ${tg.s1.l.shot} (${tg.s1.l.carga} g, ~${tg.s1.n} bagos) → ${N(tg.s1.h,1)} bagos no alvo; 2º tiro ${tg.s2.l.name} ${tg.s2.l.shot} (${tg.s2.l.carga} g, ~${tg.s2.n} bagos) → ${N(tg.s2.h,1)}.</div>`:""}`,a:["cartuchos","choke","hhit"]},
  pres:{t:"Apresentação do prato",b:()=>`<p>O prato mede 110 mm de diâmetro por 25 a 26 mm de altura. A área que a rosada "vê" depende de como ele se apresenta: de face (o disco inteiro, 95 cm²), de borda (só a lateral, cerca de 29 cm²) ou algo entre os dois. Pratos de fossa se afastam subindo e mostram parte do topo e da borda; no skeet cruzam mostrando a borda e o topo; no sporting há de tudo.</p>
  ${tg?`<div class="now">Agora: fator ${fmt(tg.pres,1)} → ${N(CLAY_A*tg.pres)} cm², raio equivalente ${N(tg.rT*100,1)} cm.</div>`:""}`,a:["hhit","hmin"]},
  herr:{t:"Erro de centragem",b:()=>`<p>Distância entre o centro da rosada e o centro do alvo no instante do impacto. Zero é o tiro perfeitamente centrado; 10 a 20 cm é um erro comum em alvo rápido, e acima de 30 cm a probabilidade despenca. A densidade cai a partir do centro da rosada, por isso o erro reduz os impactos.</p>
@@ -807,6 +829,7 @@ $("placego").onclick=searchPlace;$("place").onkeydown=e=>{if(e.key==="Enter"){e.
 $("az").oninput=e=>{S.az=+e.target.value;applyWind();render()};
 $("mode").onchange=e=>{S.mode=e.target.value;S.x1=null;S.x2=null;S.pres=null;S.hmin=null;render();if(S.mode!=="livre")setTimeout(()=>$("target").scrollIntoView({behavior:"smooth",block:"start"}),50)};
 $("ck1").onchange=e=>{S.ck1=e.target.value;render()};$("ck2").onchange=e=>{S.ck2=e.target.value;render()};
+$("c1").onchange=e=>{S.c1=e.target.value||null;render()};$("c2").onchange=e=>{S.c2=e.target.value||null;render()};
 $("x1").oninput=e=>{S.x1=+e.target.value;render()};$("x2").oninput=e=>{S.x2=+e.target.value;render()};$("st").oninput=e=>{S.st=+e.target.value;render()};
 $("pres").onchange=e=>{S.pres=+e.target.value;render()};$("herr").oninput=e=>{S.herr=+e.target.value;render()};
 $("hv").oninput=e=>{S.hv=+e.target.value;render()};$("hmin").oninput=e=>{S.hmin=+e.target.value;render()};
