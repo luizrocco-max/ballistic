@@ -1,4 +1,4 @@
-const CACHE = "balistica-t200-v3";
+const CACHE = "balistica-t200-v4";
 const ASSETS = ["./", "./index.html", "./manifest.json", "./icon.svg", "./icon-180.png", "./icon-512.png"];
 
 self.addEventListener("install", e => {

@@ -81,6 +81,7 @@ h1 .q{width:26px;height:26px;font-size:15px;margin-left:8px;vertical-align:8px}
 th .q{width:18px;height:18px;font-size:11px;margin-left:3px;border-color:var(--mute);color:var(--mute)}
 .kpi{cursor:pointer;position:relative}
 .kpi .q{position:absolute;top:8px;right:8px;margin:0}
+.kpi .l{padding-right:26px}
 .kpi:hover{box-shadow:0 0 0 2px var(--line)}
 .sec{display:flex;align-items:center}
 .helphint{font-size:13px;color:var(--mute);margin:-8px 0 14px;line-height:1.6}
@@ -190,6 +191,26 @@ details.acc .body p{margin:0 0 8px}
   <div class="sec"><span id="tbltitle"></span><button type="button" class="q" data-help="tbl" aria-label="Sobre a tabela">?</button></div>
   <div class="tw"><table id="tbl"><thead><tr><th>Dist.<button type="button" class="q" data-help="dist" aria-label="Sobre a distância">?</button></th><th>Tempo<button type="button" class="q" data-help="kpi_t" aria-label="Sobre o tempo">?</button></th><th>Altura<button type="button" class="q" data-help="kpi_h" aria-label="Sobre a altura">?</button></th><th>Veloc.<button type="button" class="q" data-help="kpi_v" aria-label="Sobre a velocidade">?</button></th><th>Energia<button type="button" class="q" data-help="kpi_e" aria-label="Sobre a energia">?</button></th><th>Mach<button type="button" class="q" data-help="kpi_m" aria-label="Sobre o Mach">?</button></th></tr></thead><tbody></tbody></table></div>
 
+  <div class="sec">Hélice / FAN 32<button type="button" class="q" data-help="hel" aria-label="Sobre a seção de hélice">?</button></div>
+  <div class="ctl">
+    <label><span><span id="hmodlabel">Modalidade</span><button type="button" class="q" data-help="hmod" aria-label="Sobre as modalidades">?</button></span></label>
+    <select id="hmod" aria-labelledby="hmodlabel"><option value="fan">FAN 32 (FEDECAT): posto a 27 m, até 32 g</option><option value="zz">Hélice ZZ (FITASC): posto a 26 m, até 28 g</option></select>
+    <label style="margin-top:8px"><span><span id="choklabel">Choke</span><button type="button" class="q" data-help="choke" aria-label="Sobre o choke">?</button></span></label>
+    <select id="chok" aria-labelledby="choklabel"><option value="40">Cilíndrico (40%)</option><option value="50">Improved cylinder ¼ (50%)</option><option value="60" selected>Modified ½ (60%)</option><option value="65">Improved modified ¾ (65%)</option><option value="70">Full (70%)</option></select>
+    <div class="hint"><span>Percentual de bagos dentro de 76 cm a 36,6 m (valores típicos; cada arma padroniza diferente).</span></div>
+  </div>
+  <div class="grid2">
+    <div class="ctl"><label><span>Ponto de quebra além das máquinas<button type="button" class="q" data-help="hx" aria-label="Sobre o ponto de quebra">?</button></span><b id="hxv"></b></label><input type="range" id="hx" min="0" max="21" step="0.5" value="6"><div class="hint"><span id="hxhint"></span></div></div>
+    <div class="ctl"><label><span>Erro de centragem<button type="button" class="q" data-help="herr" aria-label="Sobre o erro de centragem">?</button></span><b id="herrv"></b></label><input type="range" id="herr" min="0" max="50" step="1" value="5"><div class="hint"><span>Distância entre o centro da rosada e o centro do testigo</span></div></div>
+    <div class="ctl"><label><span>Velocidade da hélice (estimativa)<button type="button" class="q" data-help="hv" aria-label="Sobre a velocidade da hélice">?</button></span><b id="hvv"></b></label><input type="range" id="hv" min="5" max="35" step="1" value="20"><div class="hint"><span>Não há valor oficial; use para calcular o adiantamento</span></div></div>
+    <div class="ctl"><label><span>Impactos mínimos na zona central<button type="button" class="q" data-help="hmin" aria-label="Sobre o critério de impactos">?</button></span><b id="hminv"></b></label><input type="range" id="hmin" min="1" max="10" step="1" value="4"><div class="hint"><span>Critério para "solta o testigo"</span></div></div>
+  </div>
+  <div class="hero" style="padding-bottom:12px">
+    <div class="row"><div><div style="font-size:13px;color:#B9C8C0">Probabilidade de soltar o testigo (critério acima)</div><div class="big" id="hprob"></div></div><div class="meta" id="hmeta"></div></div>
+    <div class="chartwrap"><svg class="chart" id="hfield" viewBox="0 0 700 330" aria-label="Vista de cima do campo de hélice" style="cursor:default"></svg><button type="button" class="q" data-help="hfield" aria-label="Como ler a vista de cima">?</button></div>
+  </div>
+  <div class="kpis" id="hkpis"></div>
+  <div class="ctl"><div class="hint" style="display:block"><span id="hnote"></span></div></div>
   <div class="sec">Entenda o modelo<button type="button" class="q" data-help="metodo" aria-label="Resumo do método">?</button></div>
   <details class="acc"><summary>Como o voo é calculado</summary><div class="body">
     <p>O bago é tratado como uma esfera isolada sujeita a duas forças: o peso (<span class="f">m·g</span>, com g = 9,80665 m/s²) e o arrasto do ar, <span class="f">F = ½·ρ·Cd·A·v²</span>, sempre contrário à velocidade em relação ao ar. A velocidade relativa inclui o vento.</p>
@@ -329,10 +350,10 @@ const fmt=(n,k=1)=>{const r=Math.round(n*10**k)/10**k;return(r===0?0:n).toLocale
 const sgn=(n,k=0)=>(n>0?"+":"")+fmt(n,k);
 const $=id=>document.getElementById(id);
 
-const DEF={sel:"t200",angle:null,alt:650,temp:11,wind:0,cd:0,dist:100,h0:1.5,dz:0,drag:"loth",az:0,ws:null,wd:null,p:null,loc:null};
+const DEF={sel:"t200",angle:null,alt:650,temp:11,wind:0,cd:0,dist:100,h0:1.5,dz:0,drag:"loth",az:0,ws:null,wd:null,p:null,loc:null,hmod:"fan",chok:60,hx:6,herr:5,hv:20,hmin:4};
 const S=Object.assign({},DEF);
-const URLKEYS={sel:"c",angle:"a",alt:"alt",temp:"t",wind:"w",cd:"cd",dist:"d",h0:"h",dz:"dz",drag:"m",az:"az",ws:"ws",wd:"wd",p:"p",loc:"loc"};
-const RANGES={alt:"alt",temp:"temp",wind:"wind",cd:"cd",dist:"dist",h0:"h0",dz:"dz",az:"az"};
+const URLKEYS={sel:"c",angle:"a",alt:"alt",temp:"t",wind:"w",cd:"cd",dist:"d",h0:"h",dz:"dz",drag:"m",az:"az",ws:"ws",wd:"wd",p:"p",loc:"loc",hmod:"hm",chok:"ch",hx:"hx",herr:"he",hv:"hv",hmin:"hk"};
+const RANGES={alt:"alt",temp:"temp",wind:"wind",cd:"cd",dist:"dist",h0:"h0",dz:"dz",az:"az",hx:"hx",herr:"herr",hv:"hv",hmin:"hmin"};
 function clampTo(id,v){const el=$(id),step=+el.step||1,mn=+el.min,mx=+el.max;if(!isFinite(v))return null;v=Math.min(mx,Math.max(mn,v));return Math.round(v/step)*step;}
 function readURL(){
  const q=new URLSearchParams(location.search);
@@ -343,6 +364,8 @@ function readURL(){
  const num=(k,mn,mx)=>{if(!q.has(k))return null;const v=parseFloat(q.get(k));return isFinite(v)&&v>=mn&&v<=mx?v:null};
  S.ws=num("ws",0,60);S.wd=num("wd",0,360);S.p=num("p",500,1100);if(S.ws===null||S.wd===null){S.ws=null;S.wd=null}
  const loc=q.get("loc");S.loc=loc?loc.slice(0,80):null;
+ const hm=q.get("hm");if(hm==="fan"||hm==="zz")S.hmod=hm;
+ const ch=parseInt(q.get("ch"));if([40,50,60,65,70].includes(ch))S.chok=ch;
 }
 let urlTimer=null;
 function writeURL(){
@@ -408,8 +431,48 @@ function render(){
  $("tbl").querySelector("tbody").innerHTML=rows.join("");
  $("tbl").querySelectorAll("tr.click").forEach(r=>r.onclick=()=>{S.dist=+r.dataset.x;$("dist").value=S.dist;render()});
  $("modelnow").innerHTML=`Agora: ${load.name} ${load.shot}, Ø ${fmt(load.d,2)} mm → <b>${fmt(sim.m*1e6,1)} mg</b> por bago, área frontal <b>${fmt(Math.PI*load.d*load.d/4,2)} mm²</b>, <b>~${sim.n}</b> bagos em ${load.carga} g. Energia na boca do cano: <b>${fmt(sim.e0,2)} J</b> por bago (<b>${fmt(sim.e0*sim.n,0)} J</b> somando todos).`;
+ renderHelice(load,c);
  if(sheetKey)fillSheet(sheetKey);
  writeURL();
+}
+
+// ---------- hélice / FAN 32 ----------
+const HMOD={fan:{name:"FAN 32 (FEDECAT)",R:27,fence:21,maxg:32,src:"Regulamento Internacional FAN 32, FEDECAT"},zz:{name:"Hélice ZZ (FITASC)",R:26,fence:21,maxg:28,src:"International Rules Helices ZZ, FITASC 2026"}};
+const R76=0.381,D76=36.6,R_TEST=0.052,R_ZONA=0.075;
+function sigmaAt(pct,d){const s40=R76/Math.sqrt(-2*Math.log(1-pct/100));return s40*d/D76}
+// bagos esperados num disco de raio r cujo centro está a "e" do centro da rosada (gaussiana 2D isotrópica)
+function hitsDisc(n,sig,r,e){let sum=0;const nr=30,nt=48;for(let i=0;i<nr;i++){const rr=(i+0.5)*r/nr;for(let j=0;j<nt;j++){const th=j*2*Math.PI/nt,x=rr*Math.cos(th)-e,y=rr*Math.sin(th);sum+=Math.exp(-(x*x+y*y)/(2*sig*sig))*rr}}return n*sum*(r/nr)*(2*Math.PI/nt)/(2*Math.PI*sig*sig)}
+function poissonGE(k,mu){let p=Math.exp(-mu),cum=p;for(let i=1;i<k;i++){p*=mu/i;cum+=p}return Math.max(0,1-cum)}
+let hel=null;
+function renderHelice(load,c){
+ const m=HMOD[S.hmod],d=m.R+S.hx,sim=simulate(load,2,Object.assign({},c,{h0:1.5,dz:0})),p=at(sim.pts,d)||sim.pts[sim.pts.length-1];
+ const sig=sigmaAt(S.chok,d),e=S.herr/100,n=sim.n;
+ const hT=hitsDisc(n,sig,R_TEST,e),hZ=hitsDisc(n,sig,R_ZONA,e),hH=hZ+0.45*(hitsDisc(n,sig,0.14,e)-hZ);
+ const prob=poissonGE(S.hmin,hZ),d70=2*sig*Math.sqrt(-2*Math.log(0.3)),dens=n*(1-Math.exp(-0.05*0.05/(2*sig*sig)))/(Math.PI*0.25);
+ const lead=S.hv*p.t,over=load.carga>m.maxg;
+ hel={m,d,p,sig,hT,hZ,hH,prob,d70,dens,lead,n,over,sim};
+ $("hxv").textContent=fmt(S.hx,1)+" m";$("hxhint").textContent=`${fmt(d,1)} m do posto · faltam ${fmt(m.fence-S.hx,1)} m até a rede`;
+ $("herrv").textContent=S.herr+" cm";$("hvv").textContent=S.hv+" m/s";$("hminv").textContent=S.hmin+(S.hmin>1?" bagos":" bago");
+ $("hmod").value=S.hmod;$("chok").value=String(S.chok);
+ $("hprob").innerHTML=`${fmt(100*prob,prob>0.99?1:0)}<small>%</small>`;
+ $("hmeta").innerHTML=`${m.name} · posto a <b>${m.R} m</b> · rede a <b>${m.R+m.fence} m</b><br>${load.name} ${load.shot} · ${load.carga} g · ~${n} bagos${over?` · <span style="color:#E4632B">acima do limite de ${m.maxg} g</span>`:""}<br>quebra a <b>${fmt(d,1)} m</b> · rosada 70% em <b>${fmt(d70*100,0)} cm</b>`;
+ // vista de cima
+ const W=700,H=330,cx=350,cy=H-18,sc=(H-40)/(m.R+m.fence+2),P=(dist,ang)=>[cx+dist*sc*Math.sin(ang),cy-dist*sc*Math.cos(ang)];
+ const arc=(r,a0,a1)=>{const [x0,y0]=P(r,a0),[x1,y1]=P(r,a1);return`M${x0.toFixed(1)} ${y0.toFixed(1)} A${(r*sc).toFixed(1)} ${(r*sc).toFixed(1)} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`};
+ const half=Math.PI/180*50;let g=`<path d="${arc(m.R+m.fence,-half,half)}" fill="none" stroke="#C9A24A" stroke-width="2.5"/>`;
+ g+=`<path d="${arc(m.R,-half,half)}" fill="none" stroke="#274A3F" stroke-dasharray="3 4"/>`;
+ for(let x=10;x<m.R+m.fence;x+=10){g+=`<path d="${arc(x,-half,half)}" fill="none" stroke="#274A3F" stroke-dasharray="2 5" stroke-opacity=".6"/>`;const [tx,ty]=P(x,-half);g+=`<text x="${tx-4}" y="${ty+4}" fill="#B9C8C0" font-size="10" text-anchor="end">${x} m</text>`}
+ const dth=5/m.R;for(let i=-2;i<=2;i++){const [mx,my]=P(m.R,i*dth);g+=`<rect x="${mx-8}" y="${my-5}" width="16" height="10" fill="#3FA08A" stroke="#0F2A22"/><text x="${mx}" y="${my+19}" fill="#B9C8C0" font-size="10" text-anchor="middle">${i+3}</text>`}
+ const [bx,by]=P(d,0),rp=Math.max(3,d70/2*sc);
+ g+=`<line x1="${cx}" y1="${cy}" x2="${bx}" y2="${by}" stroke="#C9A24A" stroke-dasharray="4 3"/>`;
+ g+=`<circle cx="${bx}" cy="${by}" r="${rp}" fill="${load.color}" fill-opacity=".25" stroke="${load.color}"/><circle cx="${bx}" cy="${by}" r="3" fill="#fff"/>`;
+ g+=`<text x="${bx}" y="${by-rp-7}" fill="#F3EFE6" font-size="11" text-anchor="middle">quebra a ${fmt(d,1)} m · rosada 70% de ${fmt(d70*100,0)} cm</text>`;
+ g+=`<rect x="${cx-8}" y="${cy-8}" width="16" height="16" fill="#E4632B" stroke="#0F2A22"/><text x="${cx+12}" y="${cy+4}" fill="#B9C8C0" font-size="11">posto (${m.R} m)</text>`;
+ const [fx,fy]=P(m.R+m.fence,0);g+=`<text x="${fx}" y="${fy-6}" fill="#C9A24A" font-size="11" text-anchor="middle">rede a ${m.R+m.fence} m do posto (${m.fence} m das máquinas)</text>`;const [lx,ly]=P(m.R,half);g+=`<text x="${lx+6}" y="${ly+4}" fill="#3FA08A" font-size="11">máquinas (${m.R} m)</text>`;
+ $("hfield").innerHTML=g;
+ $("hkpis").innerHTML=[["Tempo do bago até a quebra",fmt(p.t,3),"s","hhit"],["Velocidade do bago",fmt(p.v,0),"m/s","hhit"],["Energia por bago",fmt(p.e,2),"J","hener"],["Bagos no testigo (10,4 cm)",fmt(hT,1),"","hhit"],["Bagos na zona central (15 cm)",fmt(hZ,1),"","hhit"],["Bagos na hélice inteira",fmt(hH,0),"","hhit"],["Energia somada na zona central",fmt(hZ*p.e,1),"J","hener"],["Densidade no centro",fmt(dens,1),"/dm²","hhit"],["Adiantamento",fmt(lead,1),"m","hv"]]
+  .map(([l,v,u,h])=>`<div class="kpi" data-help="${h}" role="button" tabindex="0"><div class="l">${l}</div><div class="v">${v}<small>${u}</small></div><button type="button" class="q" data-help="${h}" aria-label="Sobre ${l.toLowerCase()}" tabindex="-1">?</button></div>`).join("");
+ $("hnote").innerHTML=`Rosada modelada como distribuição normal bidimensional calibrada pelo choke; hélice tomada como disco de 28 cm com 45% de área ocupada pelas pás. A probabilidade usa Poisson com a média de bagos na zona central (testigo + colar). ${over?`<b>Atenção:</b> ${load.carga} g excede o máximo de ${m.maxg} g desta modalidade. `:""}Estimativa didática: o desprendimento real depende do ponto do impacto, da fase de aceleração e do lote da hélice.`;
 }
 
 // resumo, área de transferência e compartilhamento
@@ -560,6 +623,33 @@ const HELP={
  <div class="now" style="word-break:break-all">${shareURL()}</div>`,a:["copy"]},
  metodo:{t:"Método, em resumo",b:()=>`<p>Bago isolado, tratado como esfera. Forças: peso e arrasto <span class="f">½·ρ·Cd·A·v²</span>, com Cd dependente do Mach. Atmosfera ISA ajustada pela temperatura. Integração numérica em 2D com passo de 0,2 ms até o bago cruzar a cota do terreno. Ângulo ótimo por busca de 12° a 40°, refinada a 0,25°.</p>
  <p>A seção "Entenda o modelo" detalha cada etapa e lista o que fica de fora.</p>`,a:["obs","drag","aviso","cartuchos"]},
+ hel:{t:"Hélice / FAN 32",b:()=>`<p>Esta seção aplica o modelo do bago à modalidade de hélice: o posto fica a 27 m (FAN 32) ou 26 m (FITASC) das máquinas, e o testigo precisa se soltar no ar e cair dentro da rede, 21 m além das máquinas. Você escolhe o ponto de quebra, o choke e o erro de centragem; o painel estima quantos bagos atingem o testigo e a zona central da hélice, com que energia, e a probabilidade de atingir o número mínimo de impactos.</p>
+ <div class="now">Agora: ${hel.m.name}, quebra a ${N(hel.d,1)} m do posto, ${N(hel.hZ,1)} bagos esperados na zona central com ${N(hel.p.e,2)} J cada → ${N(100*hel.prob)}% de chance de ${S.hmin} ou mais impactos.</div>
+ <p>Não existe valor publicado de "energia para soltar o testigo". O que os regulamentos fixam é o material: pás de poliestireno friável e testigo de polietileno, não quebrável, preso por pressão com folga. O testigo solta quando o colar das pás se despedaça ou quando é arrancado por impacto direto. Por isso o critério útil é número de impactos na zona central, com energia por bago folgada.</p>`,a:["hener","hmin","hx","choke","hmod"]},
+ hmod:{t:"Modalidades",b:()=>`<ul><li><b>FAN 32 (FEDECAT)</b>: posto de 1 × 1 m a 27 m da máquina central; 5 máquinas em arco de raio 27 m, 4,5 a 5 m entre si; rede a 21 m das máquinas, 60 cm de altura; carga máxima 32 g; os dois tiros na fase de aceleração.</li>
+ <li><b>Hélice ZZ (FITASC)</b>: 26 m nos Grand Prix e campeonatos; 5, 7 ou 9 máquinas; barreira de 0,60 a 0,80 m a 21 m ± 5%; carga máxima 28 g, chumbo até 2,5 mm; motor até 7.500 rpm, elevação 10° a 45°, oscilação lateral 30° a 45°.</li></ul>
+ <div class="now">Agora: ${hel.m.name}. ${hel.over?`O ${cur.load.name} ${cur.load.shot} tem ${cur.load.carga} g, acima do limite de ${hel.m.maxg} g desta modalidade.`:`O ${cur.load.name} ${cur.load.shot} (${cur.load.carga} g) está dentro do limite de ${hel.m.maxg} g.`}</div>`,a:["hel","cartuchos"]},
+ choke:{t:"Choke e rosada",b:()=>`<p>O choke define quanto a rosada se abre. A convenção clássica mede o percentual de bagos dentro de um círculo de 76 cm a 36,6 m (40 jardas): cilíndrico ≈ 40%, ¼ ≈ 50%, ½ ≈ 60%, ¾ ≈ 65%, full ≈ 70%. São valores típicos; cada arma e cartucho padronizam diferente, e o certo é medir no papel.</p>
+ <p>O painel converte esse percentual em uma distribuição normal bidimensional, cuja abertura cresce em proporção à distância. Com isso calcula a densidade de bagos em qualquer ponto da rosada.</p>
+ <div class="now">Agora: ${S.chok}% → a ${N(hel.d,1)} m a rosada que contém 70% dos bagos tem ${N(hel.d70*100)} cm de diâmetro, com ${N(hel.dens,1)} bagos/dm² no centro.</div>
+ <p>Na hélice os praticantes costumam usar ½ no primeiro tiro e ¾ ou full no segundo: a hélice é pequena e a quebra, próxima.</p>`,a:["hhit","hx","herr"]},
+ hx:{t:"Ponto de quebra",b:()=>`<p>Distância, além da linha das máquinas, em que você quer soltar o testigo. A hélice sai acelerando e ainda precisa cair dentro da rede, a 21 m das máquinas; quanto mais tarde a quebra, mais aberta a rosada e mais perto da rede o testigo cai.</p>
+ <p>Na prática o primeiro tiro sai poucos metros após a saída e o segundo, de correção, antes da metade do caminho até a rede. Esses hábitos são de uso, não regra.</p>
+ <div class="now">Agora: ${N(S.hx,1)} m além das máquinas = ${N(hel.d,1)} m do posto; o bago leva ${N(hel.p.t,3)} s para chegar lá e restam ${N(hel.m.fence-S.hx,1)} m até a rede.</div>`,a:["hhit","hv","choke"]},
+ herr:{t:"Erro de centragem",b:()=>`<p>Distância entre o centro da rosada e o centro do testigo no instante do impacto. Zero seria o tiro perfeitamente centrado; 10 a 20 cm é um erro comum em alvo rápido, e acima de 30 cm a probabilidade despenca. Como a densidade cai a partir do centro da rosada, o erro reduz os impactos na zona central.</p>
+ <div class="now">Agora: ${S.herr} cm → ${N(hel.hZ,1)} bagos na zona central. Centrado: ${N(hitsDisc(hel.n,hel.sig,R_ZONA,0),1)}; com 20 cm de erro: ${N(hitsDisc(hel.n,hel.sig,R_ZONA,0.2),1)}.</div>`,a:["choke","hhit"]},
+ hv:{t:"Velocidade da hélice e adiantamento",b:()=>`<p>Não há valor oficial de velocidade de translação da hélice. O que se sabe é que o motor gira até 7.500 rpm (ponta da pá de 28 cm a 110 m/s), que a hélice sai acelerando e que a direção é sorteada num leque de até 45° para cada lado. O controle aqui é uma estimativa sua, usada só para calcular o adiantamento.</p>
+ <div class="now">Agora: ${S.hv} m/s × ${N(hel.p.t,3)} s de voo do bago = ${N(hel.lead,1)} m de adiantamento num cruzamento perpendicular.</div>`,a:["hx","kpi_t"]},
+ hmin:{t:"Critério de impactos",b:()=>`<p>Número mínimo de bagos na zona central (testigo + colar, 15 cm) que você considera suficiente para soltar o testigo. Para o prato de 108 mm, a experiência de campo fala em 3 a 6 impactos com energia acima de ~1 J por bago; os praticantes de hélice relatam que ela pede mais bagos que o prato, por isso o padrão aqui é 4.</p>
+ <div class="now">Agora: média de ${N(hel.hZ,1)} bagos na zona central → ${N(100*poissonGE(1,hel.hZ))}% de ao menos 1, ${N(100*poissonGE(3,hel.hZ))}% de 3+, ${N(100*poissonGE(4,hel.hZ))}% de 4+, ${N(100*poissonGE(6,hel.hZ))}% de 6+.</div>`,a:["hener","hhit"]},
+ hhit:{t:"Bagos que atingem a hélice",b:()=>`<p>Média de bagos que caem em cada área: o testigo (disco de 10,4 cm), a zona central (15 cm, testigo mais colar das pás) e a hélice inteira (28 cm, contando só 45% de área ocupada pelas pás). A probabilidade de "n ou mais" usa a distribuição de Poisson com essa média.</p>
+ <div class="now">Agora, a ${N(hel.d,1)} m com ${S.chok}% e erro de ${S.herr} cm: testigo ${N(hel.hT,1)} · zona central ${N(hel.hZ,1)} · hélice ${N(hel.hH)} bagos, de ${hel.n} disparados; o bago chega a ${N(hel.p.v)} m/s em ${N(hel.p.t,3)} s.</div>`,a:["hmin","choke","herr"]},
+ hener:{t:"Energia necessária para soltar o testigo",b:()=>`<p><b>Não há valor publicado.</b> Os regulamentos definem o material (pás de poliestireno "muito friável ao impacto", testigo de polietileno não quebrável, encaixe por pressão com folga) e o teste de fragilidade das pás com durômetro Shore (deformação máxima de 0,5 mm antes da ruptura, no colar), mas não uma energia.</p>
+ <p>Estimativa de engenharia: romper uma parede fina de poliestireno frágil consome da ordem de centésimos a décimos de joule por impacto, muito abaixo do 1 J que cada bago ainda carrega a 30–45 m. Ou seja, energia por bago não é o gargalo. O que decide é <b>quantos bagos</b> chegam ao colar e ao testigo, porque um único impacto fora do centro apenas fura a pá.</p>
+ <p>Referência análoga: prato de 108 mm quebra com bagos de 0,7 a 1,4 J (0,5 a 1 ft·lb) e 3 a 6 impactos; praticantes relatam que a hélice pede mais impactos que o prato e recomendam ½ e ¾ com chumbo 7 a 8.</p>
+ <div class="now">Agora: ${N(hel.p.e,2)} J por bago a ${N(hel.d,1)} m; ${N(hel.hZ,1)} bagos esperados na zona central somam ${N(hel.hZ*hel.p.e,1)} J.</div>`,a:["hmin","hhit","kpi_e"]},
+ hfield:{t:"Vista de cima do campo",b:()=>`<p>Posto de tiro embaixo (quadrado laranja), cinco máquinas em arco (verde, numeradas 1 a 5), rede em arco dourado 21 m além das máquinas e arcos tracejados a cada 10 m. A linha tracejada vai do posto ao ponto de quebra escolhido; o círculo colorido é, em escala, a rosada que contém 70% dos bagos nesse ponto.</p>
+ <div class="now">Agora: quebra a ${N(hel.d,1)} m, rosada 70% de ${N(hel.d70*100)} cm.</div>`,a:["hx","choke"]},
  obs:{t:"Observações e limitações",b:()=>`<p>A lista completa de hipóteses, simplificações e cuidados está na seção "Entenda o modelo", no item "Observações e limitações (lista completa)", logo abaixo das tabelas.</p>
  <p>Em resumo: bago isolado, esfera lisa, vento uniforme, terreno como degrau, sem ricochete, dados de cartucho do catálogo (provete de 30") e condições do local vindas de previsão meteorológica, não de medição no estande.</p>`,a:["aviso","metodo","loc"]},
  aviso:{t:"Estimativa, não limite de contenção",b:()=>`<p>Os números deste painel descrevem o bago "médio" de um modelo simplificado. Na prática há dispersão entre bagos, deformação no choke, ricochetes, vento em altura e variações de lote, que podem levar bagos além do calculado.</p>
@@ -624,6 +714,9 @@ async function searchPlace(){const q=$("place").value.trim();if(!q)return $("pla
  }catch(e){locFail(navigator.onLine?e.message:"sem conexão")}}
 $("placego").onclick=searchPlace;$("place").onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();searchPlace()}};
 $("az").oninput=e=>{S.az=+e.target.value;applyWind();render()};
+$("hmod").onchange=e=>{S.hmod=e.target.value;render()};$("chok").onchange=e=>{S.chok=+e.target.value;render()};
+$("hx").oninput=e=>{S.hx=+e.target.value;render()};$("herr").oninput=e=>{S.herr=+e.target.value;render()};
+$("hv").oninput=e=>{S.hv=+e.target.value;render()};$("hmin").oninput=e=>{S.hmin=+e.target.value;render()};
 
 $("dist").oninput=e=>{S.dist=+e.target.value;render()};
 $("ang").oninput=e=>{S.angle=+e.target.value;render()};
