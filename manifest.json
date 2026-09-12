@@ -1,0 +1,17 @@
+{
+  "name": "Balística CBC T200 / T200 Light",
+  "short_name": "Balística T200",
+  "description": "Dashboard balístico dos cartuchos CBC T200 e T200 Light 12/70.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F3EFE6",
+  "theme_color": "#0F2A22",
+  "lang": "pt-BR",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-180.png", "sizes": "180x180", "type": "image/png", "purpose": "any" }
+  ]
+}

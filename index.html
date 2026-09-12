@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0F2A22">
+<meta name="description" content="Dashboard balístico dos cartuchos CBC T200 e T200 Light 12/70: alcance máximo, trajetória, velocidade e energia por bago em condições ajustáveis.">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Balística T200">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>Balística CBC T200 / T200 Light — dashboard</title>
+<style>
+:root{--bg:#F3EFE6;--ink:#1B2A24;--mute:#5C6B64;--deep:#0F2A22;--brass:#C9A24A;--clay:#E4632B;--line:#C9C2B2}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:"Barlow","Segoe UI",Roboto,system-ui,sans-serif;background:var(--bg);color:var(--ink);-webkit-tap-highlight-color:transparent}
+.wrap{max-width:720px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top,0px)) calc(14px + env(safe-area-inset-right,0px)) calc(48px + env(safe-area-inset-bottom,0px)) calc(14px + env(safe-area-inset-left,0px))}
+h1{font-size:30px;line-height:1;margin:0 0 4px;font-weight:700}
+.sub{font-size:13px;color:var(--mute);margin:0 0 16px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.chip{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:8px 14px;min-height:44px;font-weight:600;font-size:14px;cursor:pointer;color:var(--ink);display:flex;align-items:center;gap:8px;font-family:inherit}
+.chip .dot{width:10px;height:10px;border-radius:50%}
+.chip.on{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.chip:focus-visible{outline:3px solid var(--clay);outline-offset:2px}
+.hero{background:var(--deep);color:var(--bg);border-radius:14px;padding:16px 16px 10px;margin-bottom:14px}
+.row{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+.big{font-weight:700;font-size:64px;line-height:.95;letter-spacing:-.01em}
+.big small{font-size:26px;font-weight:600;margin-left:4px;color:var(--brass)}
+.meta{font-size:13px;color:#B9C8C0;line-height:1.5;text-align:right}
+.meta b{color:var(--bg);font-weight:600}
+.warn{font-size:13px;color:var(--brass);margin-top:8px}
+svg.chart{width:100%;height:auto;display:block;margin-top:10px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.kpi{background:#fff;border-radius:12px;padding:10px 12px;border-left:4px solid var(--clay)}
+.kpi .l{font-size:12px;color:var(--mute);line-height:1.2}
+.kpi .v{font-weight:700;font-size:26px;line-height:1.1;margin-top:2px;font-variant-numeric:tabular-nums}
+.kpi .v small{font-size:14px;font-weight:600;color:var(--mute);margin-left:2px}
+.ctl{background:#fff;border-radius:12px;padding:12px 14px;margin-bottom:12px}
+.ctl label{display:flex;justify-content:space-between;font-size:14px;font-weight:500;margin-bottom:4px;gap:8px}
+.ctl label b{font-size:18px;font-weight:600;white-space:nowrap}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:44px;margin:0;background:transparent;display:block;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:var(--line)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:28px;height:28px;margin-top:-11px;border-radius:50%;background:var(--clay);border:3px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:var(--line)}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--clay);border:3px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+input[type=range]:focus-visible{outline:3px solid var(--clay);outline-offset:2px;border-radius:6px}
+select{width:100%;min-height:44px;font-size:16px;font-family:inherit;color:var(--ink);background:#fff;border:1.5px solid var(--line);border-radius:8px;padding:8px 10px;margin:4px 0}
+.hint{font-size:12px;color:var(--mute);margin-top:2px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.sec{font-weight:600;font-size:20px;margin:18px 0 8px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;font-size:13px}
+th{font-weight:600;text-align:right;padding:8px;background:#E8E2D4}
+th:first-child,td:first-child{text-align:left}
+td{padding:7px 8px;text-align:right;border-top:1px solid #EEE9DD;font-variant-numeric:tabular-nums}
+tr.sel td{background:#FBE9DF}
+tr.click{cursor:pointer}
+.note{font-size:12px;color:var(--mute);line-height:1.5;margin-top:14px}
+.btn{border:1.5px solid var(--ink);background:transparent;border-radius:8px;padding:6px 12px;min-height:36px;font-weight:600;font-size:13px;cursor:pointer;color:var(--ink);font-family:inherit}
+.btn:focus-visible{outline:3px solid var(--clay);outline-offset:2px}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 14px}
+.actions .btn{flex:1 1 160px;min-height:44px;font-size:16px;background:#fff}
+.actions .btn.primary{background:var(--ink);color:var(--bg)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--deep);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:14px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+@media (max-width:420px){.kpis{grid-template-columns:repeat(2,1fr)}.big{font-size:52px}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Balística dos cartuchos T200</h1>
+  <p class="sub">CBC Competition 12/70 — bago isolado, atmosfera ajustável, sem interação da rosada. Estimativa de engenharia, não limite de contenção.</p>
+  <div class="chips" id="chips"></div>
+
+  <div class="hero">
+    <div class="row">
+      <div><div style="font-size:13px;color:#B9C8C0">Alcance máximo calculado</div><div class="big" id="range"></div></div>
+      <div class="meta" id="meta"></div>
+    </div>
+    <div class="warn" id="warn" hidden></div>
+    <svg class="chart" id="chart" viewBox="0 0 700 220" aria-label="Trajetória"></svg>
+  </div>
+
+  <div class="actions">
+    <button class="btn primary" id="copy" type="button">Copiar resumo</button>
+    <button class="btn" id="share" type="button">Compartilhar</button>
+  </div>
+
+  <div class="ctl">
+    <label>Distância do ponto de leitura <b id="distv"></b></label>
+    <input type="range" id="dist" min="0" max="300" step="1" value="100">
+    <div class="hint"><span>Arraste para ler os valores em qualquer ponto da trajetória.</span></div>
+  </div>
+  <div class="kpis" id="kpis"></div>
+
+  <div class="sec">Condições do disparo</div>
+  <div class="ctl">
+    <label>Ângulo de elevação <b id="angv"></b></label>
+    <input type="range" id="ang" min="0" max="45" step="0.25">
+    <div class="hint"><span id="opthint"></span><button class="btn" id="useopt" type="button" hidden>Usar ótimo</button></div>
+  </div>
+  <div class="grid2">
+    <div class="ctl"><label>Altura do disparo <b id="h0v"></b></label><input type="range" id="h0" min="0" max="3" step="0.1" value="1.5"><div class="hint"><span>Boca do cano acima do solo</span></div></div>
+    <div class="ctl"><label>Desnível do terreno no ponto de queda <b id="dzv"></b></label><input type="range" id="dz" min="-20" max="20" step="1" value="0"><div class="hint"><span>Positivo = terreno mais alto que o ponto de disparo</span></div></div>
+    <div class="ctl"><label>Altitude <b id="altv"></b></label><input type="range" id="alt" min="0" max="2500" step="50" value="650"><div class="hint"><span id="rhov"></span></div></div>
+    <div class="ctl"><label>Temperatura <b id="tempv"></b></label><input type="range" id="temp" min="-5" max="40" step="1" value="11"><div class="hint"><span id="sndv"></span></div></div>
+    <div class="ctl"><label>Vento de cauda <b id="windv"></b></label><input type="range" id="wind" min="-10" max="10" step="0.5" value="0"><div class="hint"><span>Negativo = vento de frente</span></div></div>
+    <div class="ctl"><label>Arrasto (Cd) <b id="cdv"></b></label><input type="range" id="cd" min="-15" max="15" step="1" value="0"><div class="hint"><span>Sensibilidade do modelo</span></div></div>
+  </div>
+  <div class="ctl">
+    <label for="drag">Modelo de arrasto</label>
+    <select id="drag">
+      <option value="loth">Esfera, Cd por Mach com pico transônico (Loth et al., 2021)</option>
+      <option value="const">Cd constante 0,47</option>
+    </select>
+    <div class="hint"><span id="dragv"></span></div>
+  </div>
+
+  <div class="sec">Comparativo nas condições atuais (ângulo ótimo)</div>
+  <table id="cmp"><thead><tr><th>Cartucho</th><th>Alcance</th><th>Ângulo</th><th>Voo</th><th>Ápice</th><th>V final</th><th>E final</th></tr></thead><tbody></tbody></table>
+
+  <div class="sec" id="tbltitle"></div>
+  <table id="tbl"><thead><tr><th>Dist.</th><th>Tempo</th><th>Altura</th><th>Veloc.</th><th>Energia</th><th>Mach</th></tr></thead><tbody></tbody></table>
+
+  <p class="note">Fonte dos cartuchos: Catálogo CBC 2026/2027, linha Competition (T200 7½ 32 g 400 m/s; T200 Light 7½ e 8, 32 g 370 m/s). Chumbo 7½ = 2,38 mm conforme tabela CBC; nº 8 adotado em 2,29 mm (padrão americano, não listado no catálogo). Liga 95% Pb / 5% Sb. Arrasto de esfera dependente do Mach (Loth et al., 2021), integração 2D com passo de 0,2 ms. Alturas medidas a partir do solo no ponto de disparo; o voo termina ao cruzar a cota do terreno no ponto de queda. Zonas de exclusão e barreiras devem seguir normas do Exército/PF e da CBTE, com margem muito acima destes valores.</p>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const RHO_PB=11340,RHO_SB=6697,G=9.80665,alloy=1/(0.95/RHO_PB+0.05/RHO_SB);
+const LOADS=[
+ {id:"t200",name:"T200",shot:"7½",code:"10001277",d:2.38,v0:400,carga:32,color:"#E4632B"},
+ {id:"t200l75",name:"T200 Light",shot:"7½",code:"10001290",d:2.38,v0:370,carga:32,color:"#3FA08A"},
+ {id:"t200l8",name:"T200 Light",shot:"8",code:"10001283",d:2.29,v0:370,carga:32,color:"#C9A24A"}];
+const DRAG={
+ loth:{label:"Loth 2021",long:"esfera, Cd por Mach (Loth et al., 2021)",cd:M=>M<0.6?0.47:M<1?0.47+0.53*(M-0.6)/0.4:M<1.5?1-0.08*(M-1):0.92},
+ const:{label:"Cd 0,47",long:"Cd constante 0,47",cd:()=>0.47}};
+function atmosphere(alt,tc){const p=101325*Math.pow(1-0.0065*alt/288.15,5.2559),T=tc+273.15;return{rho:p/(287.05*T),a:Math.sqrt(1.4*287.05*T)}}
+// c = {env, cs, wind, h0, dz, drag}. O bago parte de y=h0 e o voo termina ao cruzar a cota do terreno (dz);
+// se nunca alcança um terreno mais alto, cai no nível do solo do ponto de disparo (y=0).
+function simulate(l,ang,c){
+ const cdOf=DRAG[c.drag].cd,env=c.env,wind=c.wind,h0=c.h0||0,dz=c.dz||0;
+ const d=l.d*1e-3,m=alloy*Math.PI*d**3/6,A=Math.PI*d*d/4,th=ang*Math.PI/180;
+ let x=0,y=h0,vx=l.v0*Math.cos(th),vy=l.v0*Math.sin(th),t=0,ymax=h0,k=0,above=h0>=dz,px=0,py=h0,pt=0;const dt=2e-4,pts=[];
+ pts.push({x:0,y:h0,t:0,v:l.v0,e:0.5*m*l.v0*l.v0,M:Math.hypot(vx-wind,vy)/env.a});
+ while(t<30){const rvx=vx-wind,v=Math.hypot(rvx,vy),acc=0.5*env.rho*cdOf(v/env.a)*c.cs*A*v*v/m;
+  px=x;py=y;pt=t;
+  vx-=acc*rvx/v*dt;vy-=(acc*vy/v+G)*dt;x+=vx*dt;y+=vy*dt;t+=dt;if(y>ymax)ymax=y;if(y>=dz)above=true;
+  const ground=above?dz:0;
+  if(vy<0&&y<=ground){const f=(py-ground)/(py-y||1);x=px+(x-px)*f;t=pt+(t-pt)*f;y=ground;break}
+  if(++k%25===0)pts.push({x,y,t,v:Math.hypot(vx,vy),e:0.5*m*(vx*vx+vy*vy),M:v/env.a});}
+ const ground=above?dz:0,vf=Math.hypot(vx,vy);pts.push({x,y:ground,t,v:vf,e:0.5*m*vf*vf,M:Math.hypot(vx-wind,vy)/env.a});
+ return{range:x,time:t,apex:ymax,vf,ef:0.5*m*vf*vf,m,e0:0.5*m*l.v0**2,n:Math.round(l.carga/(m*1e3)),pts,h0,dz,ground,reached:above};}
+const memo=new Map();
+function bestAngle(l,c){
+ const key=[l.id,c.env.rho,c.env.a,c.cs,c.wind,c.h0,c.dz,c.drag].join("|");
+ if(memo.has(key))return memo.get(key);
+ let b={r:-1,a:0};for(let a=12;a<=40;a++){const r=simulate(l,a,c).range;if(r>b.r)b={r,a}}
+ for(let a=b.a-1;a<=b.a+1;a+=0.25){const r=simulate(l,a,c).range;if(r>b.r)b={r,a}}
+ if(memo.size>400)memo.clear();memo.set(key,b.a);return b.a;}
+function at(pts,x){if(x<=0)return pts[0];for(let i=1;i<pts.length;i++)if(pts[i].x>=x){const p=pts[i-1],q=pts[i],f=(x-p.x)/(q.x-p.x||1),L=k=>p[k]+(q[k]-p[k])*f;return{x,y:L("y"),t:L("t"),v:L("v"),e:L("e"),M:L("M")}}return null;}
+const fmt=(n,k=1)=>n.toLocaleString("pt-BR",{minimumFractionDigits:k,maximumFractionDigits:k});
+const sgn=(n,k=0)=>(n>0?"+":"")+fmt(n,k);
+const $=id=>document.getElementById(id);
+
+const DEF={sel:"t200",angle:null,alt:650,temp:11,wind:0,cd:0,dist:100,h0:1.5,dz:0,drag:"loth"};
+const S=Object.assign({},DEF);
+const URLKEYS={sel:"c",angle:"a",alt:"alt",temp:"t",wind:"w",cd:"cd",dist:"d",h0:"h",dz:"dz",drag:"m"};
+const RANGES={alt:"alt",temp:"temp",wind:"wind",cd:"cd",dist:"dist",h0:"h0",dz:"dz"};
+function clampTo(id,v){const el=$(id),step=+el.step||1,mn=+el.min,mx=+el.max;if(!isFinite(v))return null;v=Math.min(mx,Math.max(mn,v));return Math.round(v/step)*step;}
+function readURL(){
+ const q=new URLSearchParams(location.search);
+ const c=q.get(URLKEYS.sel);if(c&&LOADS.some(l=>l.id===c))S.sel=c;
+ const m=q.get(URLKEYS.drag);if(m&&DRAG[m])S.drag=m;
+ for(const k in RANGES){if(q.has(URLKEYS[k])){const v=clampTo(RANGES[k],parseFloat(q.get(URLKEYS[k])));if(v!==null)S[k]=+v.toFixed(3)}}
+ if(q.has(URLKEYS.angle)){const v=clampTo("ang",parseFloat(q.get(URLKEYS.angle)));S.angle=v}
+}
+let urlTimer=null;
+function writeURL(){
+ clearTimeout(urlTimer);
+ urlTimer=setTimeout(()=>{const q=new URLSearchParams();
+  for(const k in URLKEYS){const v=S[k];if(v===null||v===DEF[k])continue;q.set(URLKEYS[k],String(v))}
+  const s=q.toString(),url=location.pathname+(s?"?"+s:"")+location.hash;
+  try{history.replaceState(null,"",url)}catch(e){}},300);
+}
+function shareURL(){const q=new URLSearchParams();for(const k in URLKEYS){const v=S[k];if(v===null||v===DEF[k])continue;q.set(URLKEYS[k],String(v))}
+ const s=q.toString();return location.origin+location.pathname+(s?"?"+s:"");}
+
+let cur=null; // último estado calculado, usado pelo resumo e pelo compartilhamento
+function render(){
+ const load=LOADS.find(l=>l.id===S.sel),env=atmosphere(S.alt,S.temp),cs=1+S.cd/100;
+ const c={env,cs,wind:S.wind,h0:S.h0,dz:S.dz,drag:S.drag};
+ const opt=bestAngle(load,c),ang=S.angle??opt,sim=simulate(load,ang,c);
+ const otherKey=S.drag==="loth"?"const":"loth",co=Object.assign({},c,{drag:otherKey});
+ const angO=S.angle??bestAngle(load,co),simO=simulate(load,angO,co);
+ cur={load,env,ang,opt,sim,simO,otherKey};
+ // chips
+ $("chips").innerHTML=LOADS.map(l=>`<button type="button" class="chip${l.id===S.sel?" on":""}" data-id="${l.id}"><span class="dot" style="background:${l.color}"></span>${l.name} · chumbo ${l.shot}</button>`).join("");
+ $("chips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{S.sel=b.dataset.id;render()});
+ $("range").innerHTML=`${fmt(sim.range,0)}<small>m</small>`;
+ $("meta").innerHTML=`cód. CBC <b>${load.code}</b> · ${load.carga} g · Ø ${fmt(load.d,2)} mm<br>V0 <b>${load.v0} m/s</b> · ~${sim.n} bagos · ${fmt(sim.m*1e6,1)} mg cada<br>ângulo <b>${fmt(ang,2)}°</b>${S.angle===null?" (ótimo)":""} · voo <b>${fmt(sim.time,2)} s</b> · ápice <b>${fmt(sim.apex,0)} m</b><br>altura <b>${fmt(S.h0,1)} m</b> · desnível <b>${sgn(S.dz)} m</b> · arrasto <b>${DRAG[S.drag].label}</b>`;
+ $("warn").hidden=sim.reached;
+ $("warn").textContent=sim.reached?"":`Com este ângulo o bago não alcança a cota de ${sgn(S.dz)} m; a queda mostrada é no nível do solo do ponto de disparo.`;
+ // chart
+ const W=700,H=220,ml=44,mr=12,mt=10,mb=28,xmax=Math.max(25,Math.ceil(sim.range/25)*25);
+ const ymin=Math.min(0,Math.floor(Math.min(sim.ground,0)/10)*10),ymax=Math.max(ymin+20,Math.ceil(sim.apex/10)*10+10),ystep=(ymax-ymin)>120?20:10;
+ const X=x=>ml+(W-ml-mr)*x/xmax,Y=y=>mt+(H-mt-mb)*(1-(y-ymin)/(ymax-ymin));
+ const dcur=Math.min(S.dist,sim.range),p=at(sim.pts,dcur);
+ let g=``;for(let x=0;x<=xmax;x+=25)g+=`<line x1="${X(x)}" y1="${mt}" x2="${X(x)}" y2="${H-mb}" stroke="#274A3F" stroke-dasharray="2 4"/><text x="${X(x)}" y="${H-8}" fill="#B9C8C0" font-size="11" text-anchor="middle">${x}</text>`;
+ for(let y=ymin;y<=ymax;y+=ystep)g+=`<line x1="${ml}" y1="${Y(y)}" x2="${W-mr}" y2="${Y(y)}" stroke="#274A3F" stroke-dasharray="2 4"/><text x="${ml-6}" y="${Y(y)+4}" fill="#B9C8C0" font-size="11" text-anchor="end">${y}</text>`;
+ g+=`<line x1="${ml}" y1="${Y(0)}" x2="${W-mr}" y2="${Y(0)}" stroke="#B9C8C0" stroke-width="1" stroke-opacity=".6"/>`;
+ if(sim.ground!==0)g+=`<line x1="${X(Math.max(0,sim.range-40))}" y1="${Y(sim.ground)}" x2="${W-mr}" y2="${Y(sim.ground)}" stroke="#C9A24A" stroke-width="1.5"/><text x="${W-mr}" y="${Y(sim.ground)+(sim.ground>0?-5:12)}" fill="#C9A24A" font-size="10" text-anchor="end">terreno ${sgn(sim.ground)} m</text>`;
+ const path=sim.pts.map((q,i)=>(i?"L":"M")+X(q.x).toFixed(1)+" "+Y(q.y).toFixed(1)).join(" ");
+ $("chart").innerHTML=g+`<path d="${path} L${X(sim.range)} ${Y(ymin)} L${X(0)} ${Y(ymin)} Z" fill="${load.color}" fill-opacity=".18"/><path d="${path}" fill="none" stroke="${load.color}" stroke-width="2.4"/>`
+  +(p?`<line x1="${X(p.x)}" y1="${mt}" x2="${X(p.x)}" y2="${H-mb}" stroke="#C9A24A" stroke-dasharray="4 3"/><circle cx="${X(p.x)}" cy="${Y(p.y)}" r="5" fill="#C9A24A" stroke="#0F2A22" stroke-width="1.5"/>`:"")
+  +`<text x="${W-mr}" y="${H-8}" fill="#B9C8C0" font-size="10" text-anchor="end">m</text>`;
+ // dist / kpis
+ $("distv").textContent=fmt(dcur,0)+" m";
+ $("kpis").innerHTML=p?[["Velocidade",fmt(p.v,1),"m/s"],["Energia por bago",fmt(p.e,p.e<1?3:2),"J"],["Altura",fmt(p.y,1),"m"],["Tempo de voo",fmt(p.t,2),"s"],["Mach",fmt(p.M,2),""],["Energia restante",fmt(100*p.e/sim.e0,p.e/sim.e0<0.01?2:1),"%"]]
+  .map(([l,v,u])=>`<div class="kpi"><div class="l">${l}</div><div class="v">${v}<small>${u}</small></div></div>`).join("")
+  :`<div class="kpi" style="grid-column:1/-1"><div class="l">Além do alcance</div><div class="v">O bago cai a ${fmt(sim.range,0)} m</div></div>`;
+ // controls
+ $("ang").value=ang;$("angv").textContent=fmt(ang,2)+"°";$("opthint").textContent=`Ótimo para alcance máximo: ${fmt(opt,2)}°`;$("useopt").hidden=S.angle===null;
+ $("h0v").textContent=fmt(S.h0,1)+" m";$("dzv").textContent=sgn(S.dz)+" m";
+ $("altv").textContent=S.alt+" m";$("rhov").textContent=`ρ = ${fmt(env.rho,3)} kg/m³`;
+ $("tempv").textContent=S.temp+" °C";$("sndv").textContent=`som = ${fmt(env.a,0)} m/s`;
+ $("windv").textContent=(S.wind>0?"+":"")+S.wind+" m/s";$("cdv").textContent=(S.cd>0?"+":"")+S.cd+"%";
+ $("drag").value=S.drag;
+ $("dragv").textContent=`${DRAG[S.drag].label}: ${fmt(sim.range,0)} m · ${DRAG[otherKey].label}: ${fmt(simO.range,0)} m (Δ ${sgn(simO.range-sim.range)} m${S.angle===null?", cada um no seu ângulo ótimo":", mesmo ângulo"})`;
+ // comparativo
+ $("cmp").querySelector("tbody").innerHTML=LOADS.map(l=>{const a=bestAngle(l,c),s=simulate(l,a,c);
+  return`<tr style="font-weight:${l.id===S.sel?600:400}"><td><span style="display:inline-block;width:9px;height:9px;border-radius:5px;background:${l.color};margin-right:6px"></span>${l.name} ${l.shot}</td><td>${fmt(s.range,0)} m</td><td>${fmt(a,1)}°</td><td>${fmt(s.time,1)} s</td><td>${fmt(s.apex,0)} m</td><td>${fmt(s.vf,1)} m/s</td><td>${fmt(s.ef,3)} J</td></tr>`}).join("");
+ // tabela 25 m
+ $("tbltitle").textContent=`${load.name} ${load.shot} a cada 25 m`;
+ const rows=[];for(let x=25;x<=sim.range;x+=25){const q=at(sim.pts,x);rows.push(`<tr class="click${Math.abs(x-S.dist)<1?" sel":""}" data-x="${x}"><td>${x} m</td><td>${fmt(q.t,2)} s</td><td>${fmt(q.y,1)} m</td><td>${fmt(q.v,1)} m/s</td><td>${fmt(q.e,3)} J</td><td>${fmt(q.M,2)}</td></tr>`)}
+ const last=sim.pts[sim.pts.length-1];
+ rows.push(`<tr style="font-weight:600"><td>${fmt(sim.range,1)} m</td><td>${fmt(sim.time,2)} s</td><td>${fmt(sim.ground,1)} m</td><td>${fmt(sim.vf,1)} m/s</td><td>${fmt(sim.ef,3)} J</td><td>${fmt(last.M,2)}</td></tr>`);
+ $("tbl").querySelector("tbody").innerHTML=rows.join("");
+ $("tbl").querySelectorAll("tr.click").forEach(r=>r.onclick=()=>{S.dist=+r.dataset.x;$("dist").value=S.dist;render()});
+ writeURL();
+}
+
+// resumo, área de transferência e compartilhamento
+function summary(){
+ const {load,env,ang,sim,simO,otherKey}=cur,dcur=Math.min(S.dist,sim.range),p=at(sim.pts,dcur);
+ const L=[];
+ L.push(`Balística CBC ${load.name} chumbo ${load.shot} (cód. ${load.code})`);
+ L.push(`${load.carga} g · Ø ${fmt(load.d,2)} mm · V0 ${load.v0} m/s · ~${sim.n} bagos de ${fmt(sim.m*1e6,1)} mg`);
+ L.push("");
+ L.push(`Condições: altitude ${S.alt} m (ρ ${fmt(env.rho,3)} kg/m³) · ${S.temp} °C · vento ${sgn(S.wind,1)} m/s · Cd ${sgn(S.cd)}% · arrasto ${DRAG[S.drag].long}`);
+ L.push(`Altura do disparo ${fmt(S.h0,1)} m · desnível do terreno na queda ${sgn(S.dz)} m`);
+ L.push(`Ângulo ${fmt(ang,2)}°${S.angle===null?" (ótimo)":""}`);
+ L.push("");
+ L.push(`ALCANCE MÁXIMO: ${fmt(sim.range,0)} m`);
+ L.push(`Voo ${fmt(sim.time,2)} s · ápice ${fmt(sim.apex,0)} m · queda a ${fmt(sim.vf,1)} m/s com ${fmt(sim.ef,3)} J por bago`);
+ L.push(`Com ${DRAG[otherKey].long}: ${fmt(simO.range,0)} m (Δ ${sgn(simO.range-sim.range)} m)`);
+ if(!sim.reached)L.push(`Atenção: o bago não alcança a cota de ${sgn(S.dz)} m; queda no nível do solo do disparo.`);
+ if(p&&dcur>0)L.push(`A ${fmt(dcur,0)} m: altura ${fmt(p.y,1)} m · ${fmt(p.v,1)} m/s · ${fmt(p.e,p.e<1?3:2)} J · ${fmt(p.t,2)} s · Mach ${fmt(p.M,2)}`);
+ L.push("");
+ L.push("Fonte: Catálogo CBC 2026/2027; arrasto Loth et al. 2021. Estimativa de engenharia, não limite de contenção.");
+ L.push(shareURL());
+ return L.join("\n");
+}
+let toastTimer=null;
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),2200);}
+async function copyText(s){
+ try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(s);return true}}catch(e){}
+ const ta=document.createElement("textarea");ta.value=s;ta.setAttribute("readonly","");ta.style.cssText="position:fixed;top:0;left:0;opacity:0;font-size:16px";
+ document.body.appendChild(ta);ta.focus();ta.select();ta.setSelectionRange(0,s.length);let ok=false;try{ok=document.execCommand("copy")}catch(e){}ta.remove();return ok;
+}
+$("copy").onclick=async()=>{const ok=await copyText(summary());toast(ok?"Resumo copiado":"Não foi possível copiar")};
+$("share").onclick=async()=>{
+ const url=shareURL(),{load,sim}=cur;
+ const data={title:document.title,text:`Balística CBC ${load.name} ${load.shot}: alcance máximo ${fmt(sim.range,0)} m`,url};
+ if(navigator.share){try{await navigator.share(data);return}catch(e){if(e&&e.name==="AbortError")return}}
+ const ok=await copyText(url);toast(ok?"Link copiado":"Não foi possível copiar o link");
+};
+
+$("dist").oninput=e=>{S.dist=+e.target.value;render()};
+$("ang").oninput=e=>{S.angle=+e.target.value;render()};
+$("useopt").onclick=()=>{S.angle=null;render()};
+$("alt").oninput=e=>{S.alt=+e.target.value;render()};
+$("temp").oninput=e=>{S.temp=+e.target.value;render()};
+$("wind").oninput=e=>{S.wind=+e.target.value;render()};
+$("cd").oninput=e=>{S.cd=+e.target.value;render()};
+$("h0").oninput=e=>{S.h0=+e.target.value;render()};
+$("dz").oninput=e=>{S.dz=+e.target.value;render()};
+$("drag").onchange=e=>{S.drag=e.target.value;render()};
+readURL();
+for(const k in RANGES)$(RANGES[k]).value=S[k];
+render();
+
+if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost"||location.hostname==="127.0.0.1")){
+ addEventListener("load",()=>{navigator.serviceWorker.register("./sw.js").catch(()=>{})});
+}
+</script>
+</body>
+</html>
