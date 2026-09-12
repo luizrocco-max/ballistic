@@ -54,7 +54,7 @@ select{width:100%;min-height:44px;font-size:16px;font-family:inherit;color:var(-
 .sec{font-weight:600;font-size:20px;margin:18px 0 8px}
 .tw{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:12px;background:#fff}
 table{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;font-size:13px}
-th{white-space:nowrap}
+th,td:first-child{white-space:nowrap}
 th{font-weight:600;text-align:right;padding:8px;background:#E8E2D4}
 th:first-child,td:first-child{text-align:left}
 td{padding:7px 8px;text-align:right;border-top:1px solid #EEE9DD;font-variant-numeric:tabular-nums}
@@ -83,7 +83,8 @@ th .q{width:18px;height:18px;font-size:11px;margin-left:3px;border-color:var(--m
 .kpi .q{position:absolute;top:8px;right:8px;margin:0}
 .kpi:hover{box-shadow:0 0 0 2px var(--line)}
 .sec{display:flex;align-items:center}
-.helphint{font-size:13px;color:var(--mute);margin:-8px 0 14px;display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.helphint{font-size:13px;color:var(--mute);margin:-8px 0 14px;line-height:1.6}
+.helphint .q{margin:0 2px}
 svg.chart{touch-action:pan-y;cursor:crosshair}
 .chartwrap{position:relative}
 .chartwrap .q{position:absolute;right:0;top:12px;margin:0}
@@ -198,6 +199,7 @@ details.acc .body p{margin:0 0 8px}
   <details class="acc"><summary>Massa, diâmetro e número de bagos</summary><div class="body">
     <p>O chumbo de tiro é uma liga com 95% de chumbo e 5% de antimônio, densidade de cerca de 10.980 kg/m³. A massa de cada bago vem do volume da esfera: <span class="f">m = ρ_liga·π·d³/6</span>. A área frontal usada no arrasto é <span class="f">A = π·d²/4</span>.</p>
     <p>O número de bagos é a carga do cartucho (28 g ou 32 g) dividida pela massa de um bago. Bagos menores (nº 8) são mais numerosos, porém mais leves, e perdem velocidade mais depressa, por isso alcançam menos.</p>
+    <p>Conferência: a tabela de chumbos do catálogo CBC indica cerca de 130 bagos nº 7½ em 10 g; o cálculo dá 129, o que confirma o diâmetro e a densidade adotados.</p>
     <div id="modelnow" class="now"></div>
   </div></details>
   <details class="acc"><summary>Atmosfera: altitude e temperatura</summary><div class="body">
@@ -217,6 +219,58 @@ details.acc .body p{margin:0 0 8px}
       <li>Dispersão estatística: o cálculo dá o bago "médio", não o mais distante possível.</li>
     </ul>
     <p>Por tudo isso, o resultado é uma estimativa de engenharia para entender ordens de grandeza, e não um limite de contenção.</p>
+  </div></details>
+  <details class="acc"><summary>Observações e limitações (lista completa)</summary><div class="body">
+    <p><b>Sobre o modelo físico</b></p>
+    <ul>
+      <li>Bago isolado: não há interação com os outros bagos, com a bucha nem com os gases do disparo. Nos primeiros metros a rosada voa agrupada e o arrasto real é um pouco menor; o efeito no alcance máximo é pequeno, mas existe.</li>
+      <li>Esfera perfeita e lisa: bagos amassados no cano ou no choke têm mais arrasto e voam menos, porém de forma irregular; alguns "voadores" podem se afastar da rosada.</li>
+      <li>Sem rotação (efeito Magnus), sem vento lateral e sem deriva: o cálculo é no plano vertical do tiro.</li>
+      <li>Vento uniforme: o mesmo vento do solo ao ápice. Na prática o vento cresce com a altura, o que amplia o efeito sobre um bago que sobe 40 a 60 m.</li>
+      <li>Umidade do ar ignorada: ar úmido é ligeiramente menos denso (diferença abaixo de 1% no alcance).</li>
+      <li>Terreno como degrau: a cota do ponto de queda é aplicada como um plano; uma encosta contínua dá resultado um pouco diferente.</li>
+      <li>Sem ricochete: bagos que tocam solo duro, água ou pedra podem seguir adiante.</li>
+      <li>Integração explícita com passo de 0,2 ms: o erro numérico é da ordem de centímetros; o passo de amostragem dos pontos (5 ms) só afeta a leitura interpolada, não o alcance.</li>
+      <li>Ângulo ótimo procurado entre 12° e 40°: cobre todos os cenários dos controles.</li>
+    </ul>
+    <p><b>Sobre os dados dos cartuchos</b></p>
+    <ul>
+      <li>V0 do catálogo, medida em provete de 30" (76,2 cm). Canos mais curtos entregam velocidade um pouco menor; lotes, temperatura da munição e a arma também variam a V0 em alguns metros por segundo.</li>
+      <li>Diâmetro do chumbo 7½ (2,38 mm) da tabela CBC; nº 8 adotado em 2,29 mm (padrão americano). A tolerância de fabricação do chumbo muda a massa por bago e, com ela, o alcance em poucos metros.</li>
+      <li>Liga assumida de 95% Pb / 5% Sb; ligas mais duras (mais antimônio) são um pouco menos densas.</li>
+      <li>A energia por bago é a de um único bago; a energia total do cartucho é a soma de todos, mas eles chegam espalhados no espaço e no tempo.</li>
+    </ul>
+    <p><b>Sobre o arrasto</b></p>
+    <ul>
+      <li>A curva de Loth et al. (2021) é para esferas lisas; rugosidade e deformação elevam o Cd. O controle de sensibilidade (±15%) serve para enxergar essa faixa.</li>
+      <li>O modelo de Cd constante 0,47 está presente apenas como comparação e superestima o alcance destes cartuchos, que saem supersônicos.</li>
+    </ul>
+    <p><b>Sobre as condições do local</b></p>
+    <ul>
+      <li>Dados do Open-Meteo: previsão de modelo numérico com malha de alguns quilômetros, não medição no estande. O vento é o de 10 m de altura sobre terreno aberto; entre árvores, barrancos ou construções ele pode ser muito diferente.</li>
+      <li>A altitude vem de um modelo digital de elevação (cerca de 90 m de resolução); a pressão é a de superfície na altitude do modelo, que pode diferir alguns metros do terreno real.</li>
+      <li>A busca por nome usa o primeiro resultado encontrado; confira o nome mostrado.</li>
+      <li>A geolocalização exige permissão e só funciona em páginas https (ou instaladas). As coordenadas só são enviadas ao serviço quando você toca no botão.</li>
+    </ul>
+    <p><b>Sobre o uso</b></p>
+    <ul>
+      <li>Os valores são arredondados na exibição (alcance em metros inteiros, energia em milésimos de joule); o cálculo interno usa mais casas.</li>
+      <li>Nenhum resultado aqui substitui as distâncias e barreiras exigidas pelas normas do Exército, da Polícia Federal e da CBTE; use margem generosa acima do calculado.</li>
+    </ul>
+  </div></details>
+  <details class="acc"><summary>Instalar no celular e uso offline</summary><div class="body">
+    <p><b>iPhone (Safari)</b>: toque em Compartilhar e depois em "Adicionar à Tela de Início". O painel abre em tela cheia, sem a barra do navegador.</p>
+    <p><b>Android (Chrome)</b>: menu ⋮ e "Instalar aplicativo" (ou "Adicionar à tela inicial").</p>
+    <p>Depois da primeira visita o painel fica guardado no aparelho e funciona sem internet: todos os cálculos são feitos localmente. Só a busca de condições do local precisa de conexão. Quando houver uma versão nova, ela é baixada na próxima abertura com internet.</p>
+  </div></details>
+  <details class="acc"><summary>Parâmetros do link</summary><div class="body">
+    <p>Toda a configuração fica na URL, por isso um link copiado abre exatamente o mesmo cenário. Os parâmetros, todos opcionais, são:</p>
+    <ul>
+      <li><span class="f">c</span> cartucho (t200, t200l75, t200l8, c2575, c258, vh75, vh8); <span class="f">a</span> ângulo em graus (ausente = ótimo).</li>
+      <li><span class="f">alt</span> altitude (m); <span class="f">t</span> temperatura (°C); <span class="f">p</span> pressão medida (hPa); <span class="f">w</span> vento no tiro (m/s).</li>
+      <li><span class="f">h</span> altura do disparo (m); <span class="f">dz</span> desnível (m); <span class="f">cd</span> sensibilidade do Cd (%); <span class="f">m</span> modelo de arrasto (loth ou const).</li>
+      <li><span class="f">d</span> distância de leitura (m); <span class="f">az</span> direção do tiro (°); <span class="f">ws</span> e <span class="f">wd</span> vento do local (m/s, ° de onde sopra); <span class="f">loc</span> nome do local.</li>
+    </ul>
   </div></details>
   <details class="acc"><summary>Fontes</summary><div class="body">
     <p>Catálogo CBC 2026/2027, linha Competition, calibre 12/70: T200 7½ (cód. 10001277, 32 g, 400 m/s), T200 Light 7½ e 8 (cód. 10001290 e 10001283, 32 g, 370 m/s), C25 7½ e 8 (cód. 10002180 e 10001299, 28 g, 405 m/s) e Voo Hélice 7½ e 8 (cód. 10030421 e 10028790, 32 g, 415 m/s). Velocidades medidas na boca do cano, provete de 30".</p>
@@ -321,14 +375,14 @@ function render(){
  const ymin=Math.min(0,Math.floor(Math.min(sim.ground,0)/10)*10),ymax=Math.max(ymin+20,Math.ceil(sim.apex/10)*10+10),ystep=(ymax-ymin)>120?20:10;
  const X=x=>ml+(W-ml-mr)*x/xmax,Y=y=>mt+(H-mt-mb)*(1-(y-ymin)/(ymax-ymin));cur.xmax=xmax;cur.ml=ml;cur.mr=mr;
  const dcur=Math.min(S.dist,sim.range),p=at(sim.pts,dcur);
- let g=``;for(let x=0;x<=xmax;x+=25)g+=`<line x1="${X(x)}" y1="${mt}" x2="${X(x)}" y2="${H-mb}" stroke="#274A3F" stroke-dasharray="2 4"/><text x="${X(x)}" y="${H-8}" fill="#B9C8C0" font-size="11" text-anchor="middle">${x}</text>`;
+ let g=``;for(let x=0;x<=xmax;x+=25)g+=`<line x1="${X(x)}" y1="${mt}" x2="${X(x)}" y2="${H-mb}" stroke="#274A3F" stroke-dasharray="2 4"/><text x="${X(x)}" y="${H-8}" fill="#B9C8C0" font-size="11" text-anchor="${x===xmax?"end":"middle"}">${x===xmax?x+" m":x}</text>`;
  for(let y=ymin;y<=ymax;y+=ystep)g+=`<line x1="${ml}" y1="${Y(y)}" x2="${W-mr}" y2="${Y(y)}" stroke="#274A3F" stroke-dasharray="2 4"/><text x="${ml-6}" y="${Y(y)+4}" fill="#B9C8C0" font-size="11" text-anchor="end">${y}</text>`;
  g+=`<line x1="${ml}" y1="${Y(0)}" x2="${W-mr}" y2="${Y(0)}" stroke="#B9C8C0" stroke-width="1" stroke-opacity=".6"/>`;
- if(sim.ground!==0)g+=`<line x1="${X(Math.max(0,sim.range-40))}" y1="${Y(sim.ground)}" x2="${W-mr}" y2="${Y(sim.ground)}" stroke="#C9A24A" stroke-width="1.5"/><text x="${W-mr}" y="${Y(sim.ground)+(sim.ground>0?-5:12)}" fill="#C9A24A" font-size="10" text-anchor="end">terreno ${sgn(sim.ground)} m</text>`;
+ if(sim.ground!==0){const tx=X(Math.max(0,sim.range-45));g+=`<line x1="${tx}" y1="${Y(sim.ground)}" x2="${W-mr}" y2="${Y(sim.ground)}" stroke="#C9A24A" stroke-width="1.5"/><text x="${tx}" y="${Y(sim.ground)-5}" fill="#C9A24A" font-size="10" text-anchor="start">terreno ${sgn(sim.ground)} m</text>`;}
  const path=sim.pts.map((q,i)=>(i?"L":"M")+X(q.x).toFixed(1)+" "+Y(q.y).toFixed(1)).join(" ");
  $("chart").innerHTML=g+`<path d="${path} L${X(sim.range)} ${Y(ymin)} L${X(0)} ${Y(ymin)} Z" fill="${load.color}" fill-opacity=".18"/><path d="${path}" fill="none" stroke="${load.color}" stroke-width="2.4"/>`
   +(p?`<line x1="${X(p.x)}" y1="${mt}" x2="${X(p.x)}" y2="${H-mb}" stroke="#C9A24A" stroke-dasharray="4 3"/><circle cx="${X(p.x)}" cy="${Y(p.y)}" r="5" fill="#C9A24A" stroke="#0F2A22" stroke-width="1.5"/>`:"")
-  +`<text x="${W-mr}" y="${H-8}" fill="#B9C8C0" font-size="10" text-anchor="end">m</text>`;
+  ;
  // dist / kpis
  $("distv").textContent=fmt(dcur,0)+" m";
  $("kpis").innerHTML=p?[["Velocidade",fmt(p.v,1),"m/s","kpi_v"],["Energia por bago",fmt(p.e,p.e<1?3:2),"J","kpi_e"],["Altura",fmt(p.y,1),"m","kpi_h"],["Tempo de voo",fmt(p.t,2),"s","kpi_t"],["Mach",fmt(p.M,2),"","kpi_m"],["Energia restante",fmt(100*p.e/sim.e0,p.e/sim.e0<0.01?2:1),"%","kpi_er"]]
@@ -406,7 +460,7 @@ const HELP={
  <p>É uma estimativa de engenharia para entender ordens de grandeza. Não é distância de segurança nem limite de contenção.</p>`,a:["metodo","aviso","cartuchos"]},
  cartuchos:{t:"Os cartuchos",b:()=>`<p>Todos são da linha Competition da CBC, calibre 12/70, conforme o Catálogo CBC 2026/2027 (velocidade na boca do cano, provete de 30"):</p><ul>
  ${LOADS.map(l=>`<li><b>${l.name} ${l.shot}</b> (cód. ${l.code}): ${l.carga} g, V0 ${l.v0} m/s, chumbo Ø ${fmt(l.d,2)} mm, ${l.use}.</li>`).join("")}</ul>
- <p>O <b>Voo Hélice</b> é o mais rápido (415 m/s, 32 g); o <b>C25</b> tem carga menor (28 g) a 405 m/s, para percurso de caça; o <b>T200</b> sai a 400 m/s e os <b>T200 Light</b> a 370 m/s, com menos recuo. O chumbo nº 8 é menor que o 7½, portanto cada bago é mais leve e perde velocidade mais depressa. Como o alcance do bago isolado depende só do diâmetro e da V0, cartuchos com o mesmo chumbo e velocidades parecidas alcançam quase o mesmo.</p>
+ <p>O <b>Voo Hélice</b> é o mais rápido (415 m/s, 32 g); o <b>C25</b> tem carga menor (28 g) a 405 m/s, para percurso de caça; o <b>T200</b> sai a 400 m/s e os <b>T200 Light</b> a 370 m/s, com menos recuo. O chumbo nº 8 é menor que o 7½, portanto cada bago é mais leve e perde velocidade mais depressa. Nas mesmas condições, o alcance do bago isolado depende só do diâmetro do chumbo e da V0; por isso cartuchos com o mesmo chumbo e velocidades parecidas alcançam quase o mesmo, e a diferença entre 7½ e 8 pesa mais que a diferença de carga.</p>
  <p>Toque em um chip para selecionar o cartucho, ou no <span class="q" style="margin:0">?</span> ao lado dele para ver os números daquele cartucho.</p>`,a:LOADS.map(l=>"load:"+l.id)},
  alcance:{t:"Alcance máximo calculado",b:()=>{const lo=simWith({cs:cur.c.cs*0.85}),hi=simWith({cs:cur.c.cs*1.15});return`<p>É a distância horizontal entre a boca do cano e o ponto em que o bago, já descendo, cruza a cota do terreno no ponto de queda, no ângulo mostrado.</p>
  <p>Quando o ângulo está em "ótimo", o painel testa vários ângulos e escolhe o que leva o bago mais longe. Por causa do arrasto esse ângulo fica em torno de 20° a 28°, e não em 45° como no vácuo.</p>
@@ -505,9 +559,11 @@ const HELP={
  <p>O link guarda toda a configuração nos parâmetros da URL: quem o abrir verá exatamente o mesmo cenário.</p>
  <div class="now" style="word-break:break-all">${shareURL()}</div>`,a:["copy"]},
  metodo:{t:"Método, em resumo",b:()=>`<p>Bago isolado, tratado como esfera. Forças: peso e arrasto <span class="f">½·ρ·Cd·A·v²</span>, com Cd dependente do Mach. Atmosfera ISA ajustada pela temperatura. Integração numérica em 2D com passo de 0,2 ms até o bago cruzar a cota do terreno. Ângulo ótimo por busca de 12° a 40°, refinada a 0,25°.</p>
- <p>A seção "Entenda o modelo" detalha cada etapa e lista o que fica de fora.</p>`,a:["drag","aviso","cartuchos"]},
+ <p>A seção "Entenda o modelo" detalha cada etapa e lista o que fica de fora.</p>`,a:["obs","drag","aviso","cartuchos"]},
+ obs:{t:"Observações e limitações",b:()=>`<p>A lista completa de hipóteses, simplificações e cuidados está na seção "Entenda o modelo", no item "Observações e limitações (lista completa)", logo abaixo das tabelas.</p>
+ <p>Em resumo: bago isolado, esfera lisa, vento uniforme, terreno como degrau, sem ricochete, dados de cartucho do catálogo (provete de 30") e condições do local vindas de previsão meteorológica, não de medição no estande.</p>`,a:["aviso","metodo","loc"]},
  aviso:{t:"Estimativa, não limite de contenção",b:()=>`<p>Os números deste painel descrevem o bago "médio" de um modelo simplificado. Na prática há dispersão entre bagos, deformação no choke, ricochetes, vento em altura e variações de lote, que podem levar bagos além do calculado.</p>
- <p>Zonas de exclusão, barreiras e distâncias de segurança devem seguir as normas do Exército, da Polícia Federal e da CBTE, com margem muito acima destes valores. Use o painel para entender ordens de grandeza e a influência de cada variável, não para definir limites.</p>`,a:["alcance","metodo"]}
+ <p>Zonas de exclusão, barreiras e distâncias de segurança devem seguir as normas do Exército, da Polícia Federal e da CBTE, com margem muito acima destes valores. Use o painel para entender ordens de grandeza e a influência de cada variável, não para definir limites.</p>`,a:["obs","alcance","metodo"]}
 };
 function loadHelp(id){const l=LOADS.find(x=>x.id===id),c=cur.c,a=bestAngle(l,c),s=simulate(l,a,c);const M0=l.v0/cur.env.a;
  return{t:`${l.name} chumbo ${l.shot}`,b:()=>`<p>Cartucho CBC Competition 12/70, código <b>${l.code}</b>, ${l.carga} g de chumbo, velocidade inicial de <b>${l.v0} m/s</b>, indicado para ${l.use} (Catálogo CBC 2026/2027).</p>

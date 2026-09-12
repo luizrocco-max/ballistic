@@ -20,6 +20,13 @@ Dashboard estático (HTML único, sem dependências, funciona offline e instalá
 - Loth, E. et al. (2021), coeficiente de arrasto de esfera em função do número de Mach.
 - Open-Meteo (previsão e geocodificação) para as condições do local, consultado apenas quando o usuário pede.
 
+## Limitações principais
+
+- Bago isolado, esfera lisa, sem interação da rosada, sem rotação, sem vento lateral, vento uniforme com a altura, terreno tratado como degrau, sem ricochete.
+- V0 do catálogo (provete de 30"); canos mais curtos, lotes e temperatura da munição alteram a velocidade real.
+- Condições do local vêm de previsão meteorológica (vento a 10 m) e de um modelo de elevação, não de medição no estande.
+- A lista completa está no próprio painel, em "Entenda o modelo → Observações e limitações".
+
 ## Aviso
 
 Os valores são uma estimativa de engenharia, não um limite de contenção. Zonas de exclusão e barreiras devem seguir as normas do Exército/PF e da CBTE, com margem muito acima destes números.
