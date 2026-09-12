@@ -1,5 +1,5 @@
-const CACHE = "balistica-t200-v6";
-const ASSETS = ["./", "./index.html", "./manifest.json", "./icon.svg", "./icon-180.png", "./icon-512.png"];
+const CACHE = "balistica-t200-v7";
+const ASSETS = ["./", "./index.html", "./manifest.json", "./icon.svg", "./icon-180.png", "./icon-512.png", "./manual.html", "./manual.pdf"];
 
 self.addEventListener("install", e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));

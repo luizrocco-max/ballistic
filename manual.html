@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0F2A22">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<title>Manual — Balística CBC Competition 12/70</title>
+<style>
+:root{--bg:#F3EFE6;--ink:#1B2A24;--mute:#5C6B64;--deep:#0F2A22;--brass:#C9A24A;--clay:#E4632B;--line:#C9C2B2}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;font-family:"Barlow","Segoe UI",Roboto,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.55}
+.wrap{max-width:820px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top,0px)) calc(16px + env(safe-area-inset-right,0px)) 60px calc(16px + env(safe-area-inset-left,0px))}
+header{background:var(--deep);color:var(--bg);border-radius:14px;padding:20px 20px 16px;margin-bottom:20px}
+header h1{margin:0 0 6px;font-size:30px;line-height:1.05}
+header p{margin:0;color:#B9C8C0;font-size:14px}
+header a{color:var(--brass)}
+h2{font-size:22px;margin:32px 0 10px;padding-top:8px;border-top:2px solid var(--line)}
+h3{font-size:17px;margin:20px 0 6px}
+p{margin:0 0 10px}
+ul,ol{margin:0 0 10px;padding-left:22px}
+li{margin-bottom:4px}
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;font-size:13.5px;margin:8px 0 14px}
+th{background:#E8E2D4;text-align:left;padding:7px 8px;font-weight:600}
+td{padding:6px 8px;border-top:1px solid #EEE9DD;vertical-align:top;font-variant-numeric:tabular-nums}
+td.n,th.n{text-align:right}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.f{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;background:#E8E2D4;padding:2px 6px;border-radius:5px}
+.eq{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;background:#fff;border-left:4px solid var(--brass);padding:10px 12px;border-radius:8px;margin:8px 0 12px;overflow-x:auto}
+.box{background:#fff;border-left:4px solid var(--clay);border-radius:10px;padding:10px 12px;margin:10px 0 14px}
+.warn{background:#FBE9DF;border-left:4px solid var(--clay);border-radius:10px;padding:10px 12px;margin:10px 0 14px}
+nav.toc{background:#fff;border-radius:12px;padding:12px 16px;margin-bottom:16px;font-size:14px}
+nav.toc ol{columns:2;column-gap:24px;margin:0;padding-left:20px}
+nav.toc a{color:var(--ink)}
+.small{font-size:13px;color:var(--mute)}
+a{color:var(--deep)}
+@media (max-width:600px){nav.toc ol{columns:1}header h1{font-size:26px}}
+@media print{body{background:#fff}header{border-radius:0}.wrap{max-width:none;padding:0}h2{break-after:avoid}table,.eq,.box{break-inside:avoid}nav.toc{display:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Manual do painel balístico<br>CBC Competition 12/70</h1>
+  <p>Metodologia de cálculo, dados, modalidades, limitações e fontes. Versão 1.0, setembro de 2026. Painel: <a href="./">luizrocco-max.github.io/ballistic</a> · <a href="manual.pdf">versão em PDF</a></p>
+</header>
+
+<nav class="toc"><b>Sumário</b>
+<ol>
+<li><a href="#s1">Finalidade e aviso</a></li>
+<li><a href="#s2">Visão geral da interface</a></li>
+<li><a href="#s3">Cartuchos e dados de entrada</a></li>
+<li><a href="#s4">Modelo do bago isolado</a></li>
+<li><a href="#s5">Atmosfera, vento e local</a></li>
+<li><a href="#s6">Validação e sensibilidade</a></li>
+<li><a href="#s7">Modalidades e canchas</a></li>
+<li><a href="#s8">Modelo da rosada e do alvo</a></li>
+<li><a href="#s9">Energia necessária para quebrar o alvo</a></li>
+<li><a href="#s10">Limitações e hipóteses</a></li>
+<li><a href="#s11">Uso: instalação, link, resumo</a></li>
+<li><a href="#s12">Fontes</a></li>
+<li><a href="#s13">Glossário</a></li>
+</ol></nav>
+
+<h2 id="s1">1. Finalidade e aviso</h2>
+<p>O painel estima o comportamento de <b>um único bago de chumbo</b> disparado por cartuchos CBC da linha Competition, calibre 12/70, do disparo até tocar o terreno: alcance máximo, trajetória, velocidade, energia e número de Mach em qualquer ponto do voo. Sobre esse modelo, uma segunda camada aplica um modelo de rosada às modalidades de tiro ao voo (hélice, fossa, skeet, sporting) para estimar quantos bagos atingem o alvo e a probabilidade de quebra em cada tiro, com escolha de cartucho e choke por cano.</p>
+<div class="warn"><b>Estimativa de engenharia, não limite de contenção.</b> Os resultados descrevem o bago "médio" de um modelo simplificado. Dispersão entre bagos, deformação no choke, ricochetes, vento em altura e variações de lote podem levar bagos além do calculado. Zonas de exclusão, barreiras e distâncias de segurança devem seguir as normas do Exército, da Polícia Federal e da CBTE, com margem generosa acima destes valores.</div>
+<p>Tudo é calculado no próprio aparelho, em JavaScript, sem servidor. A única função que usa a internet é a busca de condições do local, acionada apenas quando o usuário toca no botão.</p>
+
+<h2 id="s2">2. Visão geral da interface</h2>
+<div class="tw"><table>
+<tr><th>Elemento</th><th>O que faz</th></tr>
+<tr><td>Chips de cartucho</td><td>Selecionam o cartucho principal. O "?" ao lado de cada um mostra código, carga, V0, massa e número de bagos e o resultado nas condições atuais.</td></tr>
+<tr><td>Modalidade</td><td>"Nenhuma" mantém só o bago isolado. As demais montam a cancha com as medidas oficiais e abrem a seção de tiros (capítulos 7 e 8).</td></tr>
+<tr><td>Alcance máximo</td><td>Número principal: distância horizontal até o bago cruzar a cota do terreno, no ângulo mostrado (ótimo por padrão).</td></tr>
+<tr><td>Gráfico de trajetória</td><td>Altura por distância, com solo do disparo, terreno de queda e o ponto de leitura. Tocar ou arrastar no gráfico move o ponto de leitura.</td></tr>
+<tr><td>Ponto de leitura e cartões</td><td>Estado do bago numa distância escolhida: velocidade, energia, altura, tempo, Mach e energia restante.</td></tr>
+<tr><td>Condições do disparo</td><td>Ângulo (com botão "Usar ótimo"), altura do disparo, desnível do terreno, altitude, temperatura, vento no tiro e sensibilidade do Cd.</td></tr>
+<tr><td>Condições do local</td><td>Busca altitude, temperatura, pressão e vento reais por GPS ou nome de cidade; direção do tiro (azimute) converte o vento em componente de cauda ou frente.</td></tr>
+<tr><td>Modelo de arrasto</td><td>Curva de Loth (referência) ou Cd constante 0,47 (comparação), com a diferença de alcance.</td></tr>
+<tr><td>Comparativo</td><td>Os sete cartuchos nas condições atuais, cada um no seu ângulo ótimo.</td></tr>
+<tr><td>Tabela a cada 25 m</td><td>Tempo, altura, velocidade, energia e Mach ao longo do voo; tocar numa linha move o ponto de leitura.</td></tr>
+<tr><td>Seção da modalidade</td><td>Regras e medidas, cartucho e choke por tiro, pontos de quebra, apresentação do prato, erro de centragem, critério de impactos, vista de cima em escala, tabela por tiro e probabilidade combinada.</td></tr>
+<tr><td>Entenda o modelo</td><td>Explicações, observações e limitações, instalação e parâmetros do link.</td></tr>
+<tr><td>Copiar resumo / Compartilhar</td><td>Texto pronto para WhatsApp com cartucho, condições, resultados e link; compartilhamento nativo do aparelho.</td></tr>
+<tr><td>Botões "?"</td><td>Cada item tem uma explicação com os números da configuração atual e links "Veja também".</td></tr>
+</table></div>
+
+<h2 id="s3">3. Cartuchos e dados de entrada</h2>
+<p>Dados do Catálogo CBC 2026/2027, linha Competition, calibre 12, câmara 2¾" (70 mm). Velocidades medidas na boca do cano com provete de 30" (76,2 cm).</p>
+<div class="tw"><table>
+<tr><th>Cartucho</th><th>Código</th><th class="n">Carga</th><th class="n">V0</th><th class="n">Chumbo Ø</th><th>Utilização (catálogo)</th></tr>
+<tr><td>T200 7½</td><td>10001277</td><td class="n">32 g</td><td class="n">400 m/s</td><td class="n">2,38 mm</td><td>Trap</td></tr>
+<tr><td>T200 Light 7½</td><td>10001290</td><td class="n">32 g</td><td class="n">370 m/s</td><td class="n">2,38 mm</td><td>Trap</td></tr>
+<tr><td>T200 Light 8</td><td>10001283</td><td class="n">32 g</td><td class="n">370 m/s</td><td class="n">2,29 mm</td><td>Trap</td></tr>
+<tr><td>C25 7½</td><td>10002180</td><td class="n">28 g</td><td class="n">405 m/s</td><td class="n">2,38 mm</td><td>Percurso de Caça</td></tr>
+<tr><td>C25 8</td><td>10001299</td><td class="n">28 g</td><td class="n">405 m/s</td><td class="n">2,29 mm</td><td>Percurso de Caça</td></tr>
+<tr><td>Voo Hélice 7½</td><td>10030421</td><td class="n">32 g</td><td class="n">415 m/s</td><td class="n">2,38 mm</td><td>Voo Hélice</td></tr>
+<tr><td>Voo Hélice 8</td><td>10028790</td><td class="n">32 g</td><td class="n">415 m/s</td><td class="n">2,29 mm</td><td>Voo Hélice</td></tr>
+</table></div></div>
+<h3>3.1 Diâmetro do chumbo</h3>
+<p>O catálogo CBC traz a tabela de chumbos com o nº 7½ em 2,38 mm (cerca de 130 bagos em 10 g). O nº 8 não consta na tabela do catálogo; o painel adota 2,29 mm, o padrão americano (0,09"). Chumbo 7 espanhol, citado no regulamento FAN 32, corresponde a 2,5 mm.</p>
+<h3>3.2 Liga, massa e número de bagos</h3>
+<p>Liga assumida de 95% chumbo e 5% antimônio, densidade calculada pela regra das misturas em volume:</p>
+<div class="eq">ρ_liga = 1 / (0,95/11 340 + 0,05/6 697) ≈ 10 960 kg/m³<br>m = ρ_liga · π · d³ / 6 &nbsp;&nbsp;&nbsp; A = π · d² / 4 &nbsp;&nbsp;&nbsp; N = carga / m</div>
+<p>Resultado: 77,4 mg por bago de 2,38 mm (414 bagos em 32 g, 362 em 28 g) e 68,9 mg por bago de 2,29 mm (464 em 32 g, 406 em 28 g). Conferência: a tabela CBC indica cerca de 130 bagos nº 7½ em 10 g; o cálculo dá 129.</p>
+
+<h2 id="s4">4. Modelo do bago isolado</h2>
+<h3>4.1 Equações do movimento</h3>
+<p>O bago é uma esfera de massa m e área frontal A no plano vertical do tiro, sob o peso e o arrasto aerodinâmico. O arrasto é sempre oposto à velocidade em relação ao ar, que inclui o vento horizontal w (positivo de cauda):</p>
+<div class="eq">v_rel = (vx − w, vy) &nbsp;&nbsp; |v_rel| = √((vx − w)² + vy²)<br>F_d = ½ · ρ · Cd(M) · c_s · A · |v_rel|²<br>dvx/dt = −(F_d/m) · (vx − w)/|v_rel|<br>dvy/dt = −(F_d/m) · vy/|v_rel| − g<br>dx/dt = vx &nbsp;&nbsp; dy/dt = vy</div>
+<p>Com g = 9,80665 m/s², ρ a densidade do ar (capítulo 5), Cd(M) o coeficiente de arrasto em função do número de Mach M = |v_rel|/a e c_s o fator de sensibilidade do controle "Arrasto (Cd)", de 0,85 a 1,15.</p>
+<h3>4.2 Coeficiente de arrasto</h3>
+<p>Curva de referência (Loth et al., 2021, esfera lisa em regime de Reynolds alto), aproximada por trechos:</p>
+<div class="eq">M &lt; 0,6: Cd = 0,47<br>0,6 ≤ M &lt; 1,0: Cd = 0,47 + 0,53 · (M − 0,6) / 0,4 &nbsp;(sobe até 1,00)<br>1,0 ≤ M &lt; 1,5: Cd = 1,00 − 0,08 · (M − 1) &nbsp;(desce até 0,96)<br>M ≥ 1,5: Cd = 0,92</div>
+<p>Os T200, C25 e Voo Hélice saem do cano entre Mach 1,1 e 1,25 (a 11 °C, som a 338 m/s): dentro da região de arrasto máximo. O modelo alternativo "Cd constante 0,47" ignora o pico transônico e serve apenas de comparação; ele dá alcances cerca de 8% maiores.</p>
+<h3>4.3 Integração numérica</h3>
+<p>Método de Euler explícito com passo Δt = 0,2 ms. A cada passo, atualiza-se a velocidade pelas acelerações e a posição pela velocidade nova (Euler semi-implícito). Os pontos da trajetória são amostrados a cada 25 passos (5 ms) para o gráfico e as leituras interpoladas; o alcance não depende dessa amostragem.</p>
+<p>O bago parte de x = 0 e y = h0 (altura do disparo) com |v| = V0 no ângulo θ. O voo termina quando, já descendo (vy &lt; 0), y cruza a cota do terreno no ponto de queda (dz). Se o terreno é mais alto que o ponto de disparo e a trajetória nunca o alcança, o bago cai no nível do solo do disparo (y = 0) e o painel avisa. O ponto de cruzamento é obtido por interpolação linear no último passo.</p>
+<div class="box">Erro numérico: com Δt = 0,2 ms o alcance base do T200 7½ é 201,27 m; com 0,05 ms, 201,38 m; com 1 ms, 200,71 m. A diferença entre 0,2 e 0,05 ms é de 0,1 m (0,05%).</div>
+<h3>4.4 Ângulo ótimo</h3>
+<p>Busca direta: o alcance é calculado grau a grau de 12° a 40° e depois refinado em passos de 0,25° no intervalo de ±1° em torno do melhor valor. Por causa do arrasto, o ótimo fica entre 20° e 28° (não 45° como no vácuo): vale mais aproveitar a velocidade inicial com um ângulo baixo do que ganhar tempo de voo. Terreno mais alto pede ângulo maior; um vale, ângulo menor; vento de cauda, maior; de frente, menor.</p>
+<h3>4.5 Grandezas de saída</h3>
+<ul>
+<li><b>Alcance</b>: x no cruzamento do terreno. <b>Tempo de voo</b>: t no cruzamento. <b>Ápice</b>: y máximo, medido do solo do disparo.</li>
+<li><b>Velocidade</b>: |v| em relação ao solo. <b>Energia por bago</b>: E = ½ · m · |v|². <b>Energia restante</b>: E / E0, com E0 = ½ · m · V0².</li>
+<li><b>Mach</b>: |v_rel| / a, com a velocidade do som na temperatura informada. Regimes: subsônico (&lt; 0,8), transônico (0,8 a 1,2), supersônico (&gt; 1,2).</li>
+<li><b>Leituras entre pontos</b>: interpolação linear entre os pontos amostrados a cada 5 ms.</li>
+</ul>
+
+<h2 id="s5">5. Atmosfera, vento e local</h2>
+<h3>5.1 Atmosfera padrão e pressão medida</h3>
+<div class="eq">p_ISA = 101 325 · (1 − 0,0065 · h / 288,15)^5,2559 &nbsp;[Pa], h em m<br>T = t_C + 273,15 &nbsp;&nbsp; ρ = p / (287,05 · T) &nbsp;&nbsp; a = √(1,4 · 287,05 · T)</div>
+<p>A pressão vem da atmosfera padrão internacional (ISA) na altitude do controle; a densidade combina essa pressão com a temperatura informada (não a temperatura ISA). Quando as condições do local são carregadas, a pressão medida de superfície (hPa) substitui p_ISA; mover o controle de altitude volta ao modelo ISA. A umidade do ar é ignorada (efeito inferior a 1% no alcance).</p>
+<h3>5.2 Vento</h3>
+<p>Vento horizontal constante ao longo do eixo do tiro, positivo de cauda e negativo de frente, atuando durante todo o voo por meio da velocidade relativa. Não há vento lateral, rajadas nem variação com a altura. Quando o vento do local está carregado (velocidade w_s e direção de onde sopra w_d, em graus), a componente no tiro com azimute az é:</p>
+<div class="eq">w = −w_s · cos(w_d − az)</div>
+<p>Exemplo: vento de norte (w_d = 0°) e tiro para o sul (az = 180°) dão w = +w_s (cauda). Mover o controle de vento à mão desfaz o vínculo com o dado do local.</p>
+<h3>5.3 Condições do local</h3>
+<p>Fonte: Open-Meteo. A busca por posição usa a geolocalização do aparelho (exige permissão e página https ou instalada). A busca por nome usa a API de geocodificação (primeiro resultado, com nome e estado mostrados para conferência). A previsão devolve, para a hora atual, temperatura a 2 m, vento a 10 m (velocidade e direção), pressão de superfície e a altitude do terreno no modelo digital de elevação (cerca de 90 m de resolução). Chamada usada:</p>
+<div class="eq">https://api.open-meteo.com/v1/forecast?latitude=…&amp;longitude=…&amp;current=temperature_2m,wind_speed_10m,wind_direction_10m,surface_pressure&amp;wind_speed_unit=ms&amp;timezone=auto</div>
+<p>Os valores preenchem altitude (arredondada ao passo de 10 m), temperatura (1 °C), pressão (1 hPa) e vento (0,1 m/s, 1°). São dados de previsão numérica com malha de alguns quilômetros, não medições no estande; entre árvores, barrancos ou construções o vento real pode ser bem diferente. As coordenadas só são enviadas quando o usuário toca no botão; nada é armazenado além do link.</p>
+
+<h2 id="s6">6. Validação e sensibilidade</h2>
+<h3>6.1 Condição base</h3>
+<p>Altitude 650 m, 11 °C (ρ = 1,149 kg/m³, som 338 m/s), sem vento, altura de disparo 0, terreno plano, curva de Loth, ângulo ótimo.</p>
+<div class="tw"><table>
+<tr><th>Cartucho</th><th class="n">Bago</th><th class="n">Bagos</th><th class="n">E0</th><th class="n">Ângulo</th><th class="n">Alcance</th><th class="n">Voo</th><th class="n">Ápice</th><th class="n">V final</th><th class="n">E final</th></tr>
+<tr><td>T200 7½</td><td class="n">77,4 mg</td><td class="n">414</td><td class="n">6,19 J</td><td class="n">24,00°</td><td class="n">201,3 m</td><td class="n">6,04 s</td><td class="n">51 m</td><td class="n">22,7 m/s</td><td class="n">0,020 J</td></tr>
+<tr><td>T200 Light 7½</td><td class="n">77,4 mg</td><td class="n">414</td><td class="n">5,30 J</td><td class="n">24,25°</td><td class="n">198,8 m</td><td class="n">6,03 s</td><td class="n">51 m</td><td class="n">22,7 m/s</td><td class="n">0,020 J</td></tr>
+<tr><td>T200 Light 8</td><td class="n">68,9 mg</td><td class="n">464</td><td class="n">4,72 J</td><td class="n">24,25°</td><td class="n">192,5 m</td><td class="n">5,94 s</td><td class="n">50 m</td><td class="n">22,3 m/s</td><td class="n">0,017 J</td></tr>
+<tr><td>C25 7½</td><td class="n">77,4 mg</td><td class="n">362</td><td class="n">6,34 J</td><td class="n">24,00°</td><td class="n">201,7 m</td><td class="n">6,04 s</td><td class="n">51 m</td><td class="n">22,7 m/s</td><td class="n">0,020 J</td></tr>
+<tr><td>C25 8</td><td class="n">68,9 mg</td><td class="n">406</td><td class="n">5,65 J</td><td class="n">24,00°</td><td class="n">195,3 m</td><td class="n">5,95 s</td><td class="n">50 m</td><td class="n">22,3 m/s</td><td class="n">0,017 J</td></tr>
+<tr><td>Voo Hélice 7½</td><td class="n">77,4 mg</td><td class="n">414</td><td class="n">6,66 J</td><td class="n">24,00°</td><td class="n">202,5 m</td><td class="n">6,06 s</td><td class="n">52 m</td><td class="n">22,7 m/s</td><td class="n">0,020 J</td></tr>
+<tr><td>Voo Hélice 8</td><td class="n">68,9 mg</td><td class="n">464</td><td class="n">5,93 J</td><td class="n">24,00°</td><td class="n">196,0 m</td><td class="n">5,97 s</td><td class="n">50 m</td><td class="n">22,3 m/s</td><td class="n">0,020 J</td></tr>
+</table></div></div>
+<p>Leituras: 45 m/s a mais de V0 (T200 Light para Voo Hélice) rendem só 3,7 m de alcance, porque o arrasto consome a velocidade extra nos primeiros metros; o diâmetro do chumbo pesa mais que a carga ou a V0 (7½ contra 8: cerca de 6 a 9 m). A velocidade final (22 a 23 m/s) é a velocidade terminal, em que o arrasto equilibra o peso.</p>
+<h3>6.2 Trajetória do T200 7½ na condição base</h3>
+<div class="tw"><table>
+<tr><th class="n">Distância</th><th class="n">Tempo</th><th class="n">Altura</th><th class="n">Velocidade</th><th class="n">Energia</th><th class="n">Mach</th></tr>
+<tr><td class="n">25 m</td><td class="n">0,10 s</td><td class="n">11,1 m</td><td class="n">204,0 m/s</td><td class="n">1,609 J</td><td class="n">0,60</td></tr>
+<tr><td class="n">50 m</td><td class="n">0,27 s</td><td class="n">22,0 m</td><td class="n">132,9 m/s</td><td class="n">0,683 J</td><td class="n">0,39</td></tr>
+<tr><td class="n">75 m</td><td class="n">0,52 s</td><td class="n">32,5 m</td><td class="n">86,4 m/s</td><td class="n">0,289 J</td><td class="n">0,26</td></tr>
+<tr><td class="n">100 m</td><td class="n">0,91 s</td><td class="n">41,9 m</td><td class="n">55,9 m/s</td><td class="n">0,121 J</td><td class="n">0,17</td></tr>
+<tr><td class="n">125 m</td><td class="n">1,49 s</td><td class="n">49,1 m</td><td class="n">36,1 m/s</td><td class="n">0,050 J</td><td class="n">0,11</td></tr>
+<tr><td class="n">150 m</td><td class="n">2,36 s</td><td class="n">51,0 m</td><td class="n">24,0 m/s</td><td class="n">0,022 J</td><td class="n">0,07</td></tr>
+<tr><td class="n">175 m</td><td class="n">3,65 s</td><td class="n">41,7 m</td><td class="n">19,6 m/s</td><td class="n">0,015 J</td><td class="n">0,06</td></tr>
+<tr><td class="n">200 m</td><td class="n">5,87 s</td><td class="n">3,6 m</td><td class="n">22,5 m/s</td><td class="n">0,020 J</td><td class="n">0,07</td></tr>
+</table></div>
+<p>Metade da velocidade se perde nos primeiros 40 m; a 100 m restam 2% da energia inicial. No fim, o bago cai quase na vertical.</p>
+<h3>6.3 Sensibilidade (T200 7½, alcance no ângulo ótimo)</h3>
+<div class="tw"><table>
+<tr><th>Cenário</th><th class="n">Ângulo</th><th class="n">Alcance</th><th class="n">Δ</th></tr>
+<tr><td>Base</td><td class="n">24,00°</td><td class="n">201,3 m</td><td class="n">—</td></tr>
+<tr><td>Nível do mar, 11 °C</td><td class="n">23,75°</td><td class="n">188,6 m</td><td class="n">−12,6 m</td></tr>
+<tr><td>2.500 m, 11 °C</td><td class="n">24,50°</td><td class="n">243,1 m</td><td class="n">+41,8 m</td></tr>
+<tr><td>650 m, −5 °C</td><td class="n">24,00°</td><td class="n">190,8 m</td><td class="n">−10,5 m</td></tr>
+<tr><td>650 m, 40 °C</td><td class="n">24,25°</td><td class="n">220,1 m</td><td class="n">+18,8 m</td></tr>
+<tr><td>Vento de cauda +5 m/s</td><td class="n">29,75°</td><td class="n">233,4 m</td><td class="n">+32,2 m</td></tr>
+<tr><td>Vento de frente −5 m/s</td><td class="n">18,75°</td><td class="n">173,7 m</td><td class="n">−27,5 m</td></tr>
+<tr><td>Cd −15%</td><td class="n">24,50°</td><td class="n">230,4 m</td><td class="n">+29,1 m</td></tr>
+<tr><td>Cd +15%</td><td class="n">23,75°</td><td class="n">179,1 m</td><td class="n">−22,2 m</td></tr>
+<tr><td>Altura de disparo 1,5 m</td><td class="n">23,75°</td><td class="n">201,8 m</td><td class="n">+0,5 m</td></tr>
+<tr><td>Desnível +20 m (com 1,5 m)</td><td class="n">27,25°</td><td class="n">194,5 m</td><td class="n">−6,8 m</td></tr>
+<tr><td>Desnível −20 m (com 1,5 m)</td><td class="n">20,75°</td><td class="n">207,7 m</td><td class="n">+6,4 m</td></tr>
+<tr><td>Cd constante 0,47</td><td class="n">23,00°</td><td class="n">217,8 m</td><td class="n">+16,6 m</td></tr>
+</table></div>
+<p>Os fatores que mais mudam o alcance são vento (cerca de 6 m por m/s), densidade do ar (altitude e temperatura) e a incerteza do próprio Cd (±25 m para ±15%). Altura de disparo e desnível pesam pouco, porque o bago chega descendo quase na vertical.</p>
+
+<h2 id="s7">7. Modalidades e canchas</h2>
+<p>Cada modalidade carrega as medidas oficiais da cancha, os limites de cartucho e o número de tiros por alvo. A vista de cima é desenhada em escala com esses valores.</p>
+<div class="tw"><table>
+<tr><th>Modalidade</th><th>Geometria</th><th>Alvo</th><th>Cartucho</th><th>Tiros</th><th>Fonte</th></tr>
+<tr><td>Hélice FAN 32</td><td>Posto 1 × 1 m a 27 m da máquina central; 5 máquinas em arco de raio 27 m, 4,5 a 5 m entre si; rede a 21 m das máquinas, 60 cm, com faixa branca de 5 cm</td><td>Hélice; testigo deve se soltar no ar e cair dentro da rede; ambos os tiros na fase de aceleração</td><td>32 g máx; chumbo até 2,5 mm (nº 7 espanhol)</td><td>2</td><td>FEDECAT</td></tr>
+<tr><td>Hélice ZZ</td><td>26 m nos GP e campeonatos; 5 máquinas (3,80 a 5,00 m), 7 ou 9 (2,25 a 2,50 m); barreira 0,60 a 0,80 m a 21 m ± 5%; motor 0 a 7.500 rpm, elevação 10° a 45°, oscilação 30° a 45°; saída em 0,30 a 0,50 s da porta a 35°</td><td>Hélice homologada: 28 cm ± 0,5, testigo 10,4 cm ± 0,5, 60 g ± 5 total, testigo 25 g ± 3; pás de poliestireno friável, testigo de polietileno</td><td>28 g máx (+2%); chumbo até 2,5 mm</td><td>2</td><td>FITASC 2026</td></tr>
+<tr><td>Fossa Olímpica</td><td>5 postos a 15 m da fossa; 15 máquinas em 5 grupos (1,00 a 1,10 m no grupo, 3,00 a 3,30 m entre grupos); pratos a 76 m ± 1 m, altura 1,5 a 3,5 m a 10 m, ±45°</td><td>Prato 110 mm, 25 a 26 mm, 105 g; deve quebrar visivelmente</td><td>24 g (+0,5); chumbo até 2,6 mm</td><td>2</td><td>ISSF</td></tr>
+<tr><td>Fossa Universal</td><td>5 postos de 1 m² a 2,5 m entre centros, 15 m da borda da fossa; 5 máquinas a 1,00 a 1,25 m; 10 esquemas de 60 a 70 m (± 5 m), altura 1,5 a 3,5 m a 10 m, leque de 90°</td><td>Prato 11 cm, 25 a 26 mm, 100 a 110 g</td><td>28 g (+2%); chumbo até 2,5 mm</td><td>2</td><td>FITASC UT 2017</td></tr>
+<tr><td>Trap americano</td><td>5 postos a 3 jardas, 16 jardas (14,63 m) do ponto B; handicap 19 a 27 jardas; pratos a 49 a 51 jardas, 8 a 10 pés a 10 jardas; ≥ 17° por lado</td><td>Prato até 4 5/16" × 1 1/8"</td><td>1⅛ oz (≈ 32 g); chumbo até 7½</td><td>1 (simples)</td><td>ATA</td></tr>
+<tr><td>Skeet</td><td>Postos 1 a 7 em arco de raio 19,20 m; corda de 36,80 m a 5,50 m do centro (cruzamento); 8,13 m entre postos na corda; posto 8 no centro da corda; casa alta 3,05 m e baixa 1,05 m; aro de 0,90 a 0,95 m a 4,60 m; pratos a 68 m ± 1 m; limite de tiro a 40,30 m das casas</td><td>Prato padrão</td><td>24 g (+0,5); chumbo até 2,0 mm</td><td>1 (2 nos duplos)</td><td>ISSF 6.4.21</td></tr>
+<tr><td>Percurso de caça</td><td>Postos de 1 m² ou círculo de 1 m; 25 pratos por percurso; 3 a 5 máquinas por posto; trajetórias livres dentro da ética de caça</td><td>Padrão, rabbit, midi, super mini, battue, flash, ZZ</td><td>28 g (+2%); chumbo até 2,5 mm</td><td>2 nos simples</td><td>FITASC Sporting 2025</td></tr>
+<tr><td>Compak Sporting</td><td>Zona de 40 × 25 m sobre a qual todo prato passa; 5 postos de 1 × 1 m, 3 a 5 m entre centros, 4 a 8 m atrás da linha AD; ≥ 6 máquinas; limitadores de ângulo</td><td>Padrão e especiais</td><td>28 g (+0,5); chumbo até 2,5 mm (+0,1)</td><td>2</td><td>FITASC Compak</td></tr>
+<tr><td>5-Stand</td><td>5 gaiolas em linha, 4 a 6 jardas (5 recomendadas); 6 ou 8 máquinas com rabbit, teal e torre ≥ 12 pés; menu de alvos</td><td>Padrão e especiais</td><td>1⅛ oz (≈ 32 g); chumbo até 7½</td><td>2</td><td>NSCA 2026</td></tr>
+</table></div></div>
+<h3>7.1 Distância de cada tiro</h3>
+<ul>
+<li><b>Hélice, fossas e trap</b>: d = R + x, com R a distância do posto às máquinas e x o ponto de quebra além delas, na linha central.</li>
+<li><b>Skeet</b>: geometria ISSF com o centro no ponto de cruzamento. Posto k (1 a 7) na circunferência de raio 19,20 m, do ângulo do posto 1 ao do posto 7 em 6 passos iguais; posto 8 no centro da corda. O alvo está na reta da casa alta (0,9 m atrás do posto 1, na corda) ao cruzamento, deslocado de x metros a partir dele. A distância é a euclidiana posto–alvo.</li>
+<li><b>Sporting, Compak, 5-Stand</b>: d é o próprio controle, pois as trajetórias são livres.</li>
+</ul>
+<p>Para as grandezas do bago em cada tiro, usa-se a trajetória do cartucho do tiro com 2° de elevação e 1,5 m de altura, lida por interpolação na distância d. Nas distâncias de quebra (5 a 60 m) o efeito da elevação real é desprezível.</p>
+
+<h2 id="s8">8. Modelo da rosada e do alvo</h2>
+<h3>8.1 Chokes</h3>
+<p>Constrições nominais do calibre 12 e percentuais típicos de bagos dentro de um círculo de 76,2 cm (30") a 36,6 m (40 jardas). Cada arma e cartucho padronizam diferente; o certo é medir no papel.</p>
+<div class="tw"><table>
+<tr><th>Choke</th><th>Abrev.</th><th>Marcação</th><th class="n">Constrição</th><th class="n">% em 76 cm a 36,6 m</th></tr>
+<tr><td>Cylinder (cilíndrico)</td><td>Cyl</td><td>*****</td><td class="n">0,00 mm (0,000")</td><td class="n">40</td></tr>
+<tr><td>Skeet</td><td>Sk</td><td>*****</td><td class="n">0,13 mm (0,005")</td><td class="n">45</td></tr>
+<tr><td>Improved Cylinder (¼)</td><td>IC</td><td>****</td><td class="n">0,25 mm (0,010")</td><td class="n">50</td></tr>
+<tr><td>Light Modified</td><td>LM</td><td>—</td><td class="n">0,38 mm (0,015")</td><td class="n">55</td></tr>
+<tr><td>Modified (½)</td><td>Mod</td><td>***</td><td class="n">0,51 mm (0,020")</td><td class="n">60</td></tr>
+<tr><td>Improved Modified (¾)</td><td>IM</td><td>**</td><td class="n">0,64 mm (0,025")</td><td class="n">65</td></tr>
+<tr><td>Light Full</td><td>LF</td><td>—</td><td class="n">0,76 mm (0,030")</td><td class="n">68</td></tr>
+<tr><td>Full</td><td>F</td><td>*</td><td class="n">0,89 mm (0,035")</td><td class="n">70</td></tr>
+<tr><td>Extra Full</td><td>XF</td><td>—</td><td class="n">1,02 mm (0,040")</td><td class="n">75</td></tr>
+</table></div>
+<h3>8.2 Distribuição da rosada</h3>
+<p>A posição de cada bago em torno do centro da rosada é modelada por uma distribuição normal bidimensional isotrópica, com desvio-padrão σ proporcional à distância. O σ é calibrado pelo percentual P do choke no raio R = 0,381 m a D = 36,6 m:</p>
+<div class="eq">σ(D) = R / √(−2 · ln(1 − P)) &nbsp;&nbsp;&nbsp; σ(d) = σ(D) · d / D<br>densidade no centro: f(0) = N / (2π σ²) &nbsp;&nbsp;&nbsp; fração dentro do raio r (centrado): 1 − exp(−r² / 2σ²)<br>diâmetro que contém 70% dos bagos: 2 σ √(−2 ln 0,3)</div>
+<p>A literatura forense mostra que padrões reais se afastam da normal exata (excesso de bagos nas bordas, assimetrias), mas a forma exponencial em r² é a aproximação padrão para densidade central e é suficiente para comparar chokes e distâncias.</p>
+<h3>8.3 Bagos no alvo e erro de centragem</h3>
+<p>O alvo é um disco de raio r_T cujo centro está a uma distância e (erro de centragem) do centro da rosada. O número médio de bagos no disco é a integral da densidade sobre ele, calculada numericamente em malha polar (30 raios × 48 ângulos):</p>
+<div class="eq">n̄ = N · ∬_disco (1/2πσ²) · exp(−((x − e)² + y²) / 2σ²) dA</div>
+<p>Áreas usadas:</p>
+<ul>
+<li><b>Hélice</b>: testigo, disco de 10,4 cm (r = 5,2 cm); zona central (testigo + colar das pás), 15 cm (r = 7,5 cm), usada no critério; hélice inteira, disco de 28 cm contando 45% de área ocupada pelas pás fora da zona central.</li>
+<li><b>Prato</b>: disco de 110 mm (95 cm²) multiplicado pelo fator de apresentação: de face 1,0; três quartos 0,7 (≈ 67 cm²); intermediária 0,5 (≈ 48 cm²); de borda 0,3 (≈ 29 cm², equivalente a 110 × 26 mm). O raio equivalente é r_T = √(A/π).</li>
+</ul>
+<h3>8.4 Probabilidade de quebra</h3>
+<p>Os impactos são tratados como eventos de Poisson com média n̄. A probabilidade de ao menos k impactos é:</p>
+<div class="eq">P(≥ k) = 1 − Σ_{i=0}^{k−1} e^{−n̄} n̄^i / i!</div>
+<p>Critérios padrão: k = 4 na zona central da hélice; k = 3 no prato, contando o impacto apenas se a energia por bago na distância do tiro é ≥ 0,7 J (≈ 0,5 ft·lb). Com dois tiros, o segundo é tomado como independente e só decisivo se o primeiro falhar:</p>
+<div class="eq">P_comb = 1 − (1 − P₁)(1 − P₂)</div>
+<p>Nas modalidades de um tiro (skeet ISSF, trap americano simples) o painel mostra P₁ e apresenta o segundo tiro como treino.</p>
+<h3>8.5 Adiantamento</h3>
+<p>Estimativa simples para cruzamento perpendicular: adiantamento = velocidade do alvo × tempo de voo do bago até a distância do tiro. A velocidade do alvo é um controle do usuário; não há valor oficial para a hélice (o motor gira até 7.500 rpm, o que dá 110 m/s na ponta da pá de 28 cm, mas a translação é outra coisa), e pratos de fossa saem a cerca de 100 km/h desacelerando rápido.</p>
+
+<h2 id="s9">9. Energia necessária para quebrar o alvo</h2>
+<p><b>Hélice.</b> Não há valor publicado. Os regulamentos fixam o material (pás de poliestireno "muito friável ao impacto", testigo de polietileno com ao menos 50% do material, não quebrável, encaixe por pressão com folga para o testigo girar livre no plano horizontal) e um teste de fragilidade das pás com durômetro Shore, com deformação máxima de 0,5 mm antes da ruptura, medida no centro do colar. Romper parede fina de poliestireno frágil consome da ordem de centésimos a décimos de joule por impacto, muito abaixo do 1 J que cada bago ainda carrega entre 30 e 45 m. O testigo solta quando o colar se despedaça ou quando é arrancado por impacto direto; um impacto isolado fora do centro apenas fura a pá. O gargalo é, portanto, o número de bagos na zona central, e não a energia de cada um. Praticantes relatam que a hélice exige mais impactos que o prato e recomendam chokes ½ e ¾ com chumbo 7 a 8.</p>
+<p><b>Prato.</b> A experiência de campo e as tabelas de fabricantes falam em bagos com 0,5 a 1 ft·lb (0,7 a 1,4 J) e 3 a 6 impactos para quebra confiável do prato de 108 a 110 mm; de borda, ele é menor e mais resistente. Daí o critério do painel: k = 3 e ≥ 0,7 J por bago.</p>
+<div class="tw"><table>
+<tr><th>Cartucho</th><th class="n">27 m</th><th class="n">35 m</th><th class="n">40 m</th><th class="n">45 m</th></tr>
+<tr><td>Voo Hélice 7½ (20 °C)</td><td class="n">213 m/s · 1,76 J</td><td class="n">189 m/s · 1,38 J</td><td class="n">175 m/s · 1,19 J</td><td class="n">162 m/s · 1,02 J</td></tr>
+<tr><td>Voo Hélice 8 (20 °C)</td><td class="n">210 m/s · 1,52 J</td><td class="n">185 m/s · 1,18 J</td><td class="n">171 m/s · 1,01 J</td><td class="n">158 m/s · 0,86 J</td></tr>
+<tr><td>T200 7½ (20 °C)</td><td class="n">210 m/s · 1,70 J</td><td class="n">186 m/s · 1,33 J</td><td class="n">172 m/s · 1,15 J</td><td class="n">160 m/s · 0,99 J</td></tr>
+</table></div>
+<p>Todos os cartuchos mantêm mais de 1 J por bago até cerca de 45 m (7½) ou 40 m (8): dentro da janela de quebra das modalidades, a energia não é o fator limitante; a densidade da rosada e a pontaria são.</p>
+
+<h2 id="s10">10. Limitações e hipóteses</h2>
+<h3>Modelo físico</h3>
+<ul>
+<li>Bago isolado: sem interação com os outros bagos, com a bucha nem com os gases nos primeiros metros (a rosada agrupada tem arrasto um pouco menor; o efeito no alcance máximo é pequeno).</li>
+<li>Esfera lisa: bagos amassados voam menos e de forma irregular; rugosidade e deformação elevam o Cd (use a sensibilidade ±15%).</li>
+<li>Sem rotação (Magnus), sem vento lateral, sem deriva: cálculo no plano vertical do tiro.</li>
+<li>Vento uniforme com a altura; umidade ignorada; terreno como degrau na cota informada; sem ricochete.</li>
+<li>Curva de Cd de esfera lisa (Loth 2021) aproximada por trechos lineares.</li>
+</ul>
+<h3>Dados</h3>
+<ul>
+<li>V0 do catálogo em provete de 30"; canos mais curtos, lotes, temperatura da munição e a arma alteram a V0 em alguns m/s.</li>
+<li>Nº 8 em 2,29 mm (padrão americano); tolerâncias de fabricação mudam a massa por bago e o alcance em poucos metros. Liga assumida 95/5.</li>
+<li>Percentuais de choke típicos; padrões reais variam com arma, cartucho e bucha.</li>
+<li>Condições do local de previsão numérica, não de medição; vento a 10 m sobre terreno aberto; altitude de modelo digital de elevação.</li>
+</ul>
+<h3>Modelo da rosada</h3>
+<ul>
+<li>Distribuição normal isotrópica; padrões reais têm excesso nas bordas e assimetrias.</li>
+<li>Alvo tratado como disco; a hélice real é duas pás e um testigo; o prato muda de apresentação ao longo do voo.</li>
+<li>Impactos independentes (Poisson); segundo tiro independente do primeiro; sem modelagem de quebra parcial nem de pontos fracos do alvo.</li>
+<li>Velocidade do alvo é estimativa do usuário; o adiantamento é só para cruzamento perpendicular.</li>
+</ul>
+<h3>Uso</h3>
+<ul>
+<li>Valores arredondados na exibição; o cálculo interno usa mais casas.</li>
+<li>Nenhum resultado substitui as distâncias e barreiras das normas.</li>
+</ul>
+
+<h2 id="s11">11. Uso: instalação, link, resumo</h2>
+<h3>11.1 Instalar e usar offline</h3>
+<p><b>iPhone (Safari)</b>: Compartilhar → "Adicionar à Tela de Início". <b>Android (Chrome)</b>: menu ⋮ → "Instalar aplicativo". Após a primeira visita, o painel e este manual ficam guardados no aparelho (service worker) e funcionam sem internet; só a busca do local precisa de conexão. Versões novas são baixadas na próxima abertura com internet.</p>
+<h3>11.2 Parâmetros do link</h3>
+<p>Toda a configuração fica na URL, por isso um link copiado abre o mesmo cenário. Só os valores diferentes do padrão aparecem.</p>
+<div class="tw"><table>
+<tr><th>Chave</th><th>Significado</th><th>Valores</th></tr>
+<tr><td>c</td><td>Cartucho principal</td><td>t200, t200l75, t200l8, c2575, c258, vh75, vh8</td></tr>
+<tr><td>a</td><td>Ângulo de elevação (°)</td><td>0 a 45; ausente = ótimo</td></tr>
+<tr><td>alt, t, p</td><td>Altitude (m), temperatura (°C), pressão medida (hPa)</td><td>0 a 2500; −5 a 40; 500 a 1100</td></tr>
+<tr><td>w</td><td>Vento no tiro (m/s, + cauda)</td><td>−10 a 10</td></tr>
+<tr><td>h, dz</td><td>Altura do disparo (m), desnível (m)</td><td>0 a 3; −20 a 20</td></tr>
+<tr><td>cd, m</td><td>Sensibilidade do Cd (%), modelo de arrasto</td><td>−15 a 15; loth ou const</td></tr>
+<tr><td>d</td><td>Distância de leitura (m)</td><td>0 a 300</td></tr>
+<tr><td>az, ws, wd, loc</td><td>Direção do tiro (°), vento do local (m/s, ° de onde sopra), nome do local</td><td>0 a 355; 0 a 60; 0 a 360; texto</td></tr>
+<tr><td>md</td><td>Modalidade</td><td>livre, fan, zz, fo, ut, ata, sk, sp, cs, fs</td></tr>
+<tr><td>c1, c2</td><td>Cartucho do 1º e do 2º tiro</td><td>ids de cartucho; ausente = principal</td></tr>
+<tr><td>k1, k2</td><td>Choke do 1º e do 2º cano</td><td>cyl, sk, ic, lm, mod, im, lf, full, xf</td></tr>
+<tr><td>x1, x2, st</td><td>Pontos de quebra (m), posto de skeet</td><td>conforme a modalidade; 1 a 8</td></tr>
+<tr><td>pr, he, hk, hv</td><td>Apresentação do prato, erro de centragem (cm), impactos mínimos, velocidade do alvo (m/s)</td><td>0,3 a 1; 0 a 50; 1 a 10; 5 a 35</td></tr>
+</table></div></div>
+<h3>11.3 Resumo e compartilhamento</h3>
+<p>"Copiar resumo" copia um texto com cartucho, condições, local, alcance, tempo de voo, ápice, velocidade e energia de queda, comparação entre modelos de arrasto, leitura no ponto escolhido, resultados por tiro da modalidade e o link. "Compartilhar" abre a folha de compartilhamento do aparelho ou, se indisponível, copia o link.</p>
+<h3>11.4 Testes realizados</h3>
+<ul>
+<li>Física conferida contra o código original do painel: alcances base idênticos (201,27 / 198,78 / 192,50 m).</li>
+<li>Número de bagos conferido com a tabela CBC (129 contra ~130 bagos de 7½ em 10 g).</li>
+<li>Passo de integração: diferença de 0,1 m entre 0,2 ms e 0,05 ms.</li>
+<li>Interface testada em Chromium em largura de iPhone: sem erros de console, sem rolagem lateral, campos com 16 px (sem zoom no Safari), todos os tópicos de ajuda abrindo e fechando, estado restaurado a partir da URL, busca de local com API real e simulada.</li>
+</ul>
+
+<h2 id="s12">12. Fontes</h2>
+<h3>Cartuchos e balística</h3>
+<ul>
+<li>CBC, Catálogo de Munições, Componentes e Varejo 2026/2027, linha Competition (p. 47) e tabela de chumbos (p. 43).</li>
+<li>Loth, E. et al. (2021), "Supersonic and hypersonic drag coefficients for a sphere", AIAA Journal 59(8). Curva de Cd em função do Mach para esferas.</li>
+<li>Atmosfera padrão ISO 2533 / ISA: p = 101 325 · (1 − 0,0065 h / 288,15)^5,2559.</li>
+<li>Densidades: chumbo 11 340 kg/m³, antimônio 6 697 kg/m³.</li>
+</ul>
+<h3>Regulamentos</h3>
+<ul>
+<li>FEDECAT, <a href="http://www.fedecat.pt/docs/Regulation/FAN32/REGLAMENTO_INTERNACIONAL_FAN32/REGLAMENTO_INTERNACIONAL_FAN32.pdf">Reglamento Internacional FAN 32</a>; <a href="https://www.fedecat.pt/docs/Regulation/FAN32/COPA_MUNDO_2024/REGLAMENTO_COPA_MUNDO_FAN32_2024.pdf">Copa del Mundo FAN 32 2024</a>.</li>
+<li>FITASC, <a href="https://www.fitasc.com/upload/images/reglements/rglts_helice_eng_2026.pdf">International Rules Helices ZZ 2026</a>; <a href="https://www.fitasc.com/upload/images/Rglt_FU_01012017_ENG.pdf">Universal Trench 2017</a>; <a href="https://www.fitasc.com/upload/images/reglements/2025_rglt_pc_eng.pdf">Sporting 2025</a>; <a href="https://www.fitasc.com/upload/files/rglt_cs_010110_ang.pdf">Compak Sporting</a>.</li>
+<li>ISSF, <a href="https://backoffice.issf-sports.org/getfile.aspx?mod=docf&pane=1&inst=458&file=ISSF_-Technical-Rules-Rule_Book_2023_Approved_Version.pdf">Shotgun Rules</a> (Trap 6.4.20, Skeet 6.4.21, munição e alvos).</li>
+<li>ATA, <a href="https://shootata.com/portals/0/pdf/Rulebook.pdf">Official Rules</a> (campo de trap, alvos, munição).</li>
+<li>NSCA, <a href="https://nsca.nssa-nsca.org/wp-content/uploads/sites/7/2026/01/2026-NSCA-Rule-Book.pdf">Rules 2026</a> (NSCA 5-Stand Sporting, munição).</li>
+<li>RFETAV, <a href="https://www.rfetav.com/wp-content/uploads/REGLAMENTO-TECNICO.pdf">Reglamento Técnico de Hélices (2005)</a>, para histórico (até 10.000 rpm, 36 g).</li>
+</ul>
+<h3>Máquinas e alvos de hélice</h3>
+<ul>
+<li>Elicio, <a href="https://www.elicio.es/elimatic-45-12v-fts2020-zz-helice-thrower/?lang=en">ELIMATIC 45 12V FTS2020</a> e <a href="https://www.elicio.es/1625-2/">ELIMATIC 24V 50PRO</a> (3.500 a 7.500 rpm); <a href="http://www.elicio.es/index.php/es/noticias/53-i-campeonato-del-mundo-fedecat-fan-32">I Campeonato del Mundo FEDECAT FAN 32</a>.</li>
+<li>Sporting Gun, <a href="https://sporting-gun.com/shooting/a-beginners-guide-to-helice-or-zz/">A beginner's guide to Helice</a>; Full Aventura, <a href="http://www.fullaventura.com.ar/foro/viewtopic.php?t=9215">Cartuchos para Hélice</a>.</li>
+</ul>
+<h3>Chokes, rosada e quebra de pratos</h3>
+<ul>
+<li>Trulock, <a href="https://trulockchokes.com/basic_choke_information.html">Basic choke information</a>; GMK, <a href="https://www.gmk.co.uk/docs/choke-constriction-chart.pdf">Choke constriction chart</a>; NRA Family, <a href="https://www.nrafamily.org/content/shotgun-choke-explained-simply-no-math-we-promise/">Shotgun choke explained</a>.</li>
+<li>Forensic Science International: <a href="https://www.sciencedirect.com/science/article/abs/pii/0379073886900770">An evaluation of distribution of pellets due to shotgun discharge</a> (1986); <a href="https://www.sciencedirect.com/science/article/abs/pii/0379073889901989">Experimental evaluation of the distribution of the pellets in shotgun pellet patterns</a> (1989).</li>
+<li>Shotgun World, <a href="https://www.shotgunworld.com/threads/energy-needed-to-break-a-clay-asking-for-a-friend.582226/">Energy needed to break a clay</a> e <a href="https://www.shotgunworld.com/threads/minimum-pellet-density-to-reliably-break-a-clay.483694/">Minimum pellet density to reliably break a clay</a>.</li>
+</ul>
+<h3>Condições do local</h3>
+<ul>
+<li>Open-Meteo, <a href="https://open-meteo.com/en/docs">Forecast API</a> e <a href="https://open-meteo.com/en/docs/geocoding-api">Geocoding API</a>.</li>
+</ul>
+
+<h2 id="s13">13. Glossário</h2>
+<div class="tw"><table>
+<tr><td>Bago</td><td>Cada esfera de chumbo do cartucho.</td></tr>
+<tr><td>Rosada</td><td>O conjunto de bagos em voo e a mancha que formam no alvo.</td></tr>
+<tr><td>Cd</td><td>Coeficiente de arrasto: adimensional que relaciona a força de arrasto à pressão dinâmica e à área frontal.</td></tr>
+<tr><td>Mach (M)</td><td>Velocidade em relação ao ar dividida pela velocidade do som.</td></tr>
+<tr><td>ISA</td><td>Atmosfera padrão internacional: pressão e temperatura de referência em função da altitude.</td></tr>
+<tr><td>Choke</td><td>Estrangulamento na boca do cano que controla a abertura da rosada.</td></tr>
+<tr><td>Testigo</td><td>Disco branco central da hélice, que deve se soltar das pás e cair dentro da rede.</td></tr>
+<tr><td>FAN 32</td><td>Nome oficial da modalidade de hélice da FEDECAT, com cartuchos de até 32 g.</td></tr>
+<tr><td>Hélice ZZ</td><td>Modalidade de hélice da FITASC, com cartuchos de até 28 g.</td></tr>
+<tr><td>Fossa</td><td>Trincheira com as máquinas lançadoras, à frente dos postos, nas modalidades de trap.</td></tr>
+<tr><td>Ápice</td><td>Altura máxima da trajetória.</td></tr>
+<tr><td>Poisson</td><td>Distribuição de probabilidade do número de eventos independentes com média conhecida.</td></tr>
+</table></div>
+<p class="small">Manual do painel balístico CBC Competition 12/70, versão 1.0. Estimativa de engenharia; não substitui normas de segurança nem o teste da arma no papel.</p>
+</div>
+</body>
+</html>

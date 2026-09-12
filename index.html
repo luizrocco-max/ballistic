@@ -124,7 +124,7 @@ details.acc .body p{margin:0 0 8px}
 <div class="wrap">
   <h1>Balística dos cartuchos CBC<button type="button" class="q" data-help="intro" aria-label="O que é este painel">?</button></h1>
   <p class="sub">T200, T200 Light, C25 e Voo Hélice, linha Competition 12/70 — bago isolado, atmosfera ajustável, sem interação da rosada. Estimativa de engenharia, não limite de contenção.</p>
-  <div class="helphint">Toque em qualquer <span class="q" aria-hidden="true" style="margin:0">?</span> para entender o item e ver o efeito na configuração atual.</div>
+  <div class="helphint">Toque em qualquer <span class="q" aria-hidden="true" style="margin:0">?</span> para entender o item e ver o efeito na configuração atual. <a href="manual.html" style="color:var(--deep);font-weight:600">Manual completo</a> (<a href="manual.pdf" style="color:var(--deep)">PDF</a>).</div>
   <div class="chips" id="chips"></div>
   <div class="ctl" style="margin-top:-6px">
     <label><span><span id="modelabel">Modalidade</span><button type="button" class="q" data-help="mode" aria-label="Sobre as modalidades">?</button></span></label>
@@ -220,6 +220,7 @@ details.acc .body p{margin:0 0 8px}
   <div class="ctl" style="margin-top:12px"><div class="hint" style="display:block"><span id="tnote"></span></div></div>
   </div>
   <div class="sec">Entenda o modelo<button type="button" class="q" data-help="metodo" aria-label="Resumo do método">?</button></div>
+  <div class="ctl"><div class="hint" style="display:block"><span>O <a href="manual.html" style="color:var(--deep);font-weight:600">manual completo</a> (também em <a href="manual.pdf" style="color:var(--deep)">PDF</a>) reúne metodologia, equações, dados, validação, modalidades, modelo da rosada, limitações e todas as fontes.</span></div></div>
   <details class="acc"><summary>Como o voo é calculado</summary><div class="body">
     <p>O bago é tratado como uma esfera isolada sujeita a duas forças: o peso (<span class="f">m·g</span>, com g = 9,80665 m/s²) e o arrasto do ar, <span class="f">F = ½·ρ·Cd·A·v²</span>, sempre contrário à velocidade em relação ao ar. A velocidade relativa inclui o vento.</p>
     <p>As equações são integradas numericamente no plano vertical, com passos de 0,2 ms: a cada passo a velocidade é atualizada pelas forças e a posição pela velocidade. O voo termina quando o bago, já descendo, cruza a cota do terreno no ponto de queda.</p>
@@ -734,7 +735,7 @@ const HELP={
  <p>O link guarda toda a configuração nos parâmetros da URL: quem o abrir verá exatamente o mesmo cenário.</p>
  <div class="now" style="word-break:break-all">${shareURL()}</div>`,a:["copy"]},
  metodo:{t:"Método, em resumo",b:()=>`<p>Bago isolado, tratado como esfera. Forças: peso e arrasto <span class="f">½·ρ·Cd·A·v²</span>, com Cd dependente do Mach. Atmosfera ISA ajustada pela temperatura. Integração numérica em 2D com passo de 0,2 ms até o bago cruzar a cota do terreno. Ângulo ótimo por busca de 12° a 40°, refinada a 0,25°.</p>
- <p>A seção "Entenda o modelo" detalha cada etapa e lista o que fica de fora.</p>`,a:["obs","drag","aviso","cartuchos"]},
+ <p>A seção "Entenda o modelo" detalha cada etapa e lista o que fica de fora; o <a href="manual.html">manual completo</a> traz as equações, a validação e as fontes.</p>`,a:["obs","drag","aviso","cartuchos"]},
  mode:{t:"Modalidades",b:()=>{const m=MODES[S.mode];return`<p>Escolha a modalidade para o painel montar a cancha com as medidas oficiais e calcular, para o cartucho e os chokes escolhidos, o que a rosada faz no alvo em cada tiro.</p>
  <ul>${Object.keys(MODES).filter(k=>k!=="livre").map(k=>`<li><b>${MODES[k].name}</b>: ${MODES[k].rules} <i>(${MODES[k].src})</i></li>`).join("")}</ul>
  ${m.kind?`<div class="now">Agora: ${m.name}. ${tg.over||tg.overd?`O ${cur.load.name} ${cur.load.shot} (${cur.load.carga} g, Ø ${fmt(cur.load.d,2)} mm) não é permitido: limite de ${fmt(m.maxg,1)} g e ${fmt(m.maxd,1)} mm.`:`O ${cur.load.name} ${cur.load.shot} (${cur.load.carga} g, Ø ${fmt(cur.load.d,2)} mm) está dentro do limite de ${fmt(m.maxg,1)} g e ${fmt(m.maxd,1)} mm.`}</div>`:""}`},a:["choke","xs","hhit","hener"]},

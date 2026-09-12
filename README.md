@@ -2,6 +2,10 @@
 
 Dashboard estático (HTML único, sem dependências, funciona offline e instalável como app) que estima alcance máximo, trajetória, velocidade e energia por bago dos cartuchos CBC Competition 12/70 — T200, T200 Light, C25 e Voo Hélice — com integração numérica do bago isolado em atmosfera, altura de disparo, desnível de terreno, vento e modelo de arrasto ajustáveis. Cada elemento tem um botão "?" com explicação e os números da configuração atual; um botão busca as condições reais do local (altitude, temperatura, pressão e vento) pela internet. O seletor "Modalidade" monta a cancha com as medidas oficiais (hélice FAN 32 e ZZ FITASC, fossa olímpica, fossa universal, trap americano, skeet, percurso de caça FITASC, Compak Sporting e 5-Stand NSCA), com escolha de cartucho e de choke para o 1º e o 2º tiro (todas as constrições, de Cylinder a Extra Full), ponto de quebra de cada tiro, apresentação do prato e erro de centragem, estimando com um modelo de rosada gaussiana quantos bagos atingem o alvo, a energia por bago e a probabilidade de quebra por tiro e combinada.
 
+## Manual
+
+O manual completo (metodologia, equações, dados, validação, modalidades, modelo da rosada, limitações e fontes) está em [manual.html](https://luizrocco-max.github.io/ballistic/manual.html) e em [manual.pdf](https://luizrocco-max.github.io/ballistic/manual.pdf).
+
 ## Cartuchos
 
 | Cartucho | Código CBC | Carga | V0 | Chumbo |
