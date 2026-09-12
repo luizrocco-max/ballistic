@@ -551,11 +551,11 @@ function drawPattern(id,sh,title){
  for(const [x,y,hit] of pts)if(Math.abs(x)<0.62&&Math.abs(y)<0.62)dots+=`<circle cx="${(cx+x*sc).toFixed(1)}" cy="${(cy-y*sc).toFixed(1)}" r="${hit?2.4:1.7}" fill="${hit?"#E4632B":"#1B2A24"}" fill-opacity="${hit?1:.75}"/>`;
  const r70=sh.d70/2*sc;
  const g=`<rect x="0" y="0" width="${W}" height="${W}" fill="#FBF9F4" stroke="#C9C2B2"/>
- <circle cx="${cx}" cy="${cy}" r="${0.381*sc}" fill="none" stroke="#5C6B64" stroke-dasharray="4 3"/><text x="${cx}" y="${cy-0.381*sc-4}" font-size="9" fill="#5C6B64" text-anchor="middle">76 cm (30")</text>
+ <circle cx="${cx}" cy="${cy}" r="${0.381*sc}" fill="none" stroke="#5C6B64" stroke-dasharray="4 3"/><text x="${cx}" y="${cy-0.381*sc+12}" font-size="9" fill="#5C6B64" text-anchor="middle">76 cm (30")</text>
  <circle cx="${cx}" cy="${cy}" r="${r70}" fill="${tg.s1===sh?cur.load.color:"#C9A24A"}" fill-opacity=".10" stroke="#C9A24A"/><text x="${cx}" y="${cy+r70+10}" font-size="9" fill="#8A6F2E" text-anchor="middle">70% dos bagos: ${fmt(sh.d70*100,0)} cm</text>
  <circle cx="${cx+e*sc}" cy="${cy}" r="${rT*sc}" fill="#fff" stroke="#0F2A22" stroke-width="1.5"/>${dots}
  <line x1="${cx}" y1="${cy-5}" x2="${cx}" y2="${cy+5}" stroke="#0F2A22"/><line x1="${cx-5}" y1="${cy}" x2="${cx+5}" y2="${cy}" stroke="#0F2A22"/>
- <text x="6" y="${W-6}" font-size="9" fill="#5C6B64">quadro de 1,2 × 1,2 m · + = centro da rosada · alvo ${tg.m.kind==="helice"?"zona central 15 cm":"prato"} a ${S.herr} cm</text>`;
+ <text x="6" y="${W-6}" font-size="9" fill="#5C6B64">1,2 × 1,2 m · + centro da rosada · ${tg.m.kind==="helice"?"zona central (15 cm)":"prato"} a ${S.herr} cm</text>`;
  $(id).innerHTML=g;
  $(id.replace("pat","pat")+"t").innerHTML=`<b>${title}</b>: ${sh.l.name} ${sh.l.shot}, ${sh.ck.name}, a ${fmt(sh.d,1)} m`;
  $(id+"v").innerHTML=`<b>${sh.n}</b> bagos disparados · <b>${in76}</b> dentro de 76 cm (${fmt(100*in76/sh.n,0)}%) · <b>${inT}</b> no alvo nesta amostra representativa (média calculada ${fmt(sh.h,1)}) · ${fmt(sh.p.e,2)} J cada`;
